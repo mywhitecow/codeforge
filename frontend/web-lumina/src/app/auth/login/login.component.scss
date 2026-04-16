@@ -1,0 +1,114 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+
+  .login-box {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+
+    .logo {
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 28px;
+      font-weight: 800;
+      color: #a78bfa;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 32px;
+      opacity: 0.7;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: #ffffff;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border 0.3s;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.35);
+        }
+
+        &:focus {
+          border-color: #a78bfa;
+          background: rgba(167, 139, 250, 0.08);
+        }
+      }
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.3s, transform 0.2s;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 24px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+
+      a {
+        color: #a78bfa;
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

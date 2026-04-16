@@ -1,0 +1,34 @@
+<div class="login-container">
+  <div class="login-box">
+
+    <div class="logo">LUMINA</div>
+    <h2>Bienvenido de nuevo</h2>
+
+    @if (error) {
+      <div class="error-msg">{{ error }}</div>
+    }
+
+    <div class="input-group">
+      <input
+        type="email"
+        placeholder="Correo electrónico"
+        [(ngModel)]="email"
+      />
+    </div>
+
+    <div class="input-group">
+      <input
+        type="password"
+        placeholder="Contraseña"
+        [(ngModel)]="password"
+      />
+    </div>
+
+    <button (click)="onLogin()">Iniciar Sesión</button>
+
+    <div class="footer-text">
+      ¿No tienes cuenta? <a href="#">Regístrate</a>
+    </div>
+
+  </div>
+</div>
