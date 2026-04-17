@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -19,11 +20,13 @@ export const routes: Routes = [
   },
   {
     path: 'cart',
-    loadChildren: () => import('./features/cart/routes').then(m => m.CART_ROUTES)
+    canActivate: [authGuard],
+  loadChildren: () => import('./features/cart/routes').then(m => m.CART_ROUTES)
   },
   {
     path: 'profile',
-    loadChildren: () => import('./features/user-profile/routes').then(m => m.PROFILE_ROUTES)
+     canActivate: [authGuard],
+  loadChildren: () => import('./features/user-profile/routes').then(m => m.PROFILE_ROUTES)  
   },
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
   { path: '**', redirectTo: '/courses' }
