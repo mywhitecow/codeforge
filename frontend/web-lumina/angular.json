@@ -36,6 +36,7 @@
             "security": {
               "allowedHosts": []
             },
+            
             "ssr": {
               "entry": "src/server.ts"
             }
