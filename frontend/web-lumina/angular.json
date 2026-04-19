@@ -32,17 +32,45 @@
             ],
             "styles": ["src/styles.scss"],
             "server": "src/main.server.ts",
-            "outputMode": "server",
+             "outputMode": "server",
             "security": {
               "allowedHosts": []
             },
             
             "ssr": {
               "entry": "src/server.ts"
+            },
+             "externalDependencies": [
+              "express",
+              "supports-color",
+               "debug",
+                "mongoose",
+                "redis",
+               "bcrypt"
+              ],
+             "prerender":  {
+              "routesFile": "src/app/app.routes.server.ts"
             }
+            
           },
           "configurations": {
             "production": {
+              "outputMode": "server",
+               "ssr": {
+                "entry": "src/server.ts"
+              },
+               "externalDependencies": [
+              "express",
+              "supports-color",
+               "debug",
+                "mongoose",
+                "redis",
+               "bcrypt"
+              ],
+             
+               "prerender":  {
+                "routesFile": "src/app/app.routes.server.ts"
+                     },  
               "budgets": [
                 {
                   "type": "initial",
@@ -72,6 +100,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {

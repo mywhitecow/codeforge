@@ -4,5 +4,5 @@ import { CourseDetailComponent } from './course-detail/course-detail.component';
 
 export const COURSE_ROUTES: Routes = [
   { path: '', component: CourseListComponent },
-  { path: ':id', component: CourseDetailComponent }
+  //  { path: ':id', component: CourseDetailComponent }
 ];
