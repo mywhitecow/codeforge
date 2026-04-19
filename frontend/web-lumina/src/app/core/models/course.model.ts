@@ -1,14 +1,6 @@
-// core/models/user.model.ts
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-  enrolledCourseIds: string[];
-  createdAt: string;
-}
-
 // core/models/course.model.ts
+// CORREGIDO: eliminado el interface User duplicado — ver user.model.ts
+
 export interface Course {
   id: string;
   title: string;
@@ -33,5 +25,10 @@ export interface CourseDetail extends Course {
 
 export interface CourseSyllabus {
   sectionTitle: string;
-  lessons: { title: string; durationMinutes: number }[];
+  lessons: CourseSyllabusLesson[];
+}
+
+export interface CourseSyllabusLesson {
+  title: string;
+  durationMinutes: number;
 }

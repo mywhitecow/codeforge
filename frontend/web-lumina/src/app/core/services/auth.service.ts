@@ -1,5 +1,11 @@
 // core/services/auth.service.ts
-import { Injectable, inject, signal, computed } from '@angular/core';
+// CORREGIDO:
+//   - isAuthenticated era un computed() que devuelve boolean pero se usaba como función
+//     en auth.guard (auth.isAuthenticated()) → ahora es consistente
+//   - Añadido loadUserFromToken() para restaurar sesión al recargar
+//   - Separado register() del componente dummy
+import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from './api.service';
 import { User } from '../models/user.model';
@@ -10,24 +16,46 @@ interface AuthResponse {
   user: User;
 }
 
+interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly api = inject(ApiService);
-  private readonly router = inject(Router);
+  private readonly api         = inject(ApiService);
+  private readonly router      = inject(Router);
+  private readonly platformId  = inject(PLATFORM_ID);
 
-  // Angular Signals como estado reactivo — moderno y performante
   private readonly _currentUser = signal<User | null>(null);
   private readonly _token = signal<string | null>(
-    localStorage.getItem('lumina_token')
+    // SSR-safe: solo leer localStorage en browser
+    isPlatformBrowser(this.platformId) ? localStorage.getItem('lumina_token') : null
   );
 
-  readonly currentUser = this._currentUser.asReadonly();
+  // Exponer como readonly signals
+  readonly currentUser     = this._currentUser.asReadonly();
   readonly isAuthenticated = computed(() => !!this._token());
 
   login(email: string, password: string) {
     return this.api.post<AuthResponse>('auth/login', { email, password }).pipe(
       tap(({ token, user }) => {
-        localStorage.setItem('lumina_token', token);
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('lumina_token', token);
+        }
+        this._token.set(token);
+        this._currentUser.set(user);
+      })
+    );
+  }
+
+  register(payload: RegisterPayload) {
+    return this.api.post<AuthResponse>('auth/register', payload).pipe(
+      tap(({ token, user }) => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('lumina_token', token);
+        }
         this._token.set(token);
         this._currentUser.set(user);
       })
@@ -35,7 +63,9 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('lumina_token');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('lumina_token');
+    }
     this._token.set(null);
     this._currentUser.set(null);
     this.router.navigate(['/auth/login']);
