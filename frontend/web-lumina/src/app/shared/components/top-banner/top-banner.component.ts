@@ -1,19 +1,13 @@
-// top-banner.component.ts
-// Archivo: frontend/web-lumina/src/app/shared/components/top-banner/top-banner.component.ts
-//
-// CAMBIOS vs versión original:
-//  1. timeLeft convertido a signal → Angular detecta los cambios automáticamente
-//     (el objeto plano NO triggereaba change detection en modo OnPush/zoneless)
-//  2. Añadida clase "animate-banner" para entrada suave
-//  3. Contador con padding (01, 02...) para UI consistente
-
 import {
   Component,
   OnInit,
   OnDestroy,
   signal,
-  computed,
+  inject,
+  PLATFORM_ID,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 interface TimeLeft {
   days: number;
@@ -25,6 +19,7 @@ interface TimeLeft {
 @Component({
   selector: 'app-top-banner',
   standalone: true,
+  imports: [RouterLink],
   template: `
     @if (isVisible()) {
       <div class="relative bg-linear-to-r from-sky-500 to-cyan-400
@@ -40,20 +35,22 @@ interface TimeLeft {
             50% de descuento en todos los cursos
           </span>
 
-          <!-- Contador regresivo -->
-          <div class="flex items-center gap-1 font-mono text-xs md:text-sm
-                      bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full
-                      border border-white/30 tracking-wider">
-            <span>{{ pad(timeLeft().days) }}<small class="opacity-70 font-sans text-[10px]">d</small></span>
-            <span class="opacity-50">:</span>
-            <span>{{ pad(timeLeft().hours) }}<small class="opacity-70 font-sans text-[10px]">h</small></span>
-            <span class="opacity-50">:</span>
-            <span>{{ pad(timeLeft().minutes) }}<small class="opacity-70 font-sans text-[10px]">m</small></span>
-            <span class="opacity-50">:</span>
-            <span>{{ pad(timeLeft().seconds) }}<small class="opacity-70 font-sans text-[10px]">s</small></span>
-          </div>
+          <!-- Contador regresivo — solo se muestra en browser -->
+          @if (isBrowser) {
+            <div class="flex items-center gap-1 font-mono text-xs md:text-sm
+                        bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full
+                        border border-white/30 tracking-wider">
+              <span>{{ pad(timeLeft().days) }}<small class="opacity-70 font-sans text-[10px]">d</small></span>
+              <span class="opacity-50">:</span>
+              <span>{{ pad(timeLeft().hours) }}<small class="opacity-70 font-sans text-[10px]">h</small></span>
+              <span class="opacity-50">:</span>
+              <span>{{ pad(timeLeft().minutes) }}<small class="opacity-70 font-sans text-[10px]">m</small></span>
+              <span class="opacity-50">:</span>
+              <span>{{ pad(timeLeft().seconds) }}<small class="opacity-70 font-sans text-[10px]">s</small></span>
+            </div>
+          }
 
-          <!-- CTA opcional -->
+          <!-- CTA -->
           <a routerLink="/premium"
              class="hidden md:inline-flex items-center gap-1 text-sm font-semibold
                     underline underline-offset-2 hover:no-underline hover:opacity-80
@@ -82,15 +79,23 @@ interface TimeLeft {
   `,
 })
 export class TopBannerComponent implements OnInit, OnDestroy {
+  // ─── CORRECCIÓN SSR ────────────────────────────────────────────────────────
+  // PLATFORM_ID permite detectar si estamos en browser o servidor.
+  // setInterval en SSR mantiene la app inestable forever → timeout de 9s.
+  // Solución: solo iniciar el timer en el browser.
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(this.platformId);
+
   isVisible = signal(true);
+  timeLeft = signal<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   private targetDate!: Date;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  // Signal en vez de objeto plano → change detection garantizado
-  timeLeft = signal<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
   ngOnInit(): void {
+    // Guard crítico: NO ejecutar timers en SSR
+    if (!this.isBrowser) return;
+
     this.targetDate = new Date();
     this.targetDate.setDate(this.targetDate.getDate() + 7);
     this.updateTimer();

@@ -1,9 +1,4 @@
 // core/services/auth.service.ts
-// CORREGIDO:
-//   - isAuthenticated era un computed() que devuelve boolean pero se usaba como función
-//     en auth.guard (auth.isAuthenticated()) → ahora es consistente
-//   - Añadido loadUserFromToken() para restaurar sesión al recargar
-//   - Separado register() del componente dummy
 import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,32 +11,25 @@ interface AuthResponse {
   user: User;
 }
 
-interface RegisterPayload {
-  name: string;
-  email: string;
-  password: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly api         = inject(ApiService);
-  private readonly router      = inject(Router);
-  private readonly platformId  = inject(PLATFORM_ID);
+  private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private readonly _currentUser = signal<User | null>(null);
   private readonly _token = signal<string | null>(
-    // SSR-safe: solo leer localStorage en browser
-    isPlatformBrowser(this.platformId) ? localStorage.getItem('lumina_token') : null
+    this.isBrowser ? localStorage.getItem('lumina_token') : null
   );
 
-  // Exponer como readonly signals
-  readonly currentUser     = this._currentUser.asReadonly();
+  readonly currentUser = this._currentUser.asReadonly();
   readonly isAuthenticated = computed(() => !!this._token());
 
   login(email: string, password: string) {
     return this.api.post<AuthResponse>('auth/login', { email, password }).pipe(
       tap(({ token, user }) => {
-        if (isPlatformBrowser(this.platformId)) {
+        if (this.isBrowser) {
           localStorage.setItem('lumina_token', token);
         }
         this._token.set(token);
@@ -50,10 +38,10 @@ export class AuthService {
     );
   }
 
-  register(payload: RegisterPayload) {
-    return this.api.post<AuthResponse>('auth/register', payload).pipe(
+  register(data: { name: string; email: string; password: string }) {
+    return this.api.post<AuthResponse>('auth/register', data).pipe(
       tap(({ token, user }) => {
-        if (isPlatformBrowser(this.platformId)) {
+        if (this.isBrowser) {
           localStorage.setItem('lumina_token', token);
         }
         this._token.set(token);
@@ -63,7 +51,7 @@ export class AuthService {
   }
 
   logout(): void {
-    if (isPlatformBrowser(this.platformId)) {
+    if (this.isBrowser) {
       localStorage.removeItem('lumina_token');
     }
     this._token.set(null);

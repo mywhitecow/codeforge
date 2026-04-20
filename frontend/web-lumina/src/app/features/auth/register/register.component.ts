@@ -209,7 +209,7 @@ export class RegisterComponent {
         this.loading.set(false);
         this.router.navigate(['/courses']);
       },
-      error: (err) => {
+      error: (err: { status: number; }) => {
         this.loading.set(false);
         this.errorMsg.set(
           err.status === 409
