@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
+    use HasFactory;
+
+    // 1. Agregamos esta lista de campos permitidos
+    protected $fillable = [
+        'title',
+        'description',
+        'duration',
+        'level',
+        'price',
+        'category_id',
+        'instructor_id',
+        'min_subscription_id'
+    ];
+
+    // 2. Aquí abajo continúan tus relaciones intactas...
     public function category() {
         return $this->belongsTo(Category::class);
     }
