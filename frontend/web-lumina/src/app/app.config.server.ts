@@ -1,16 +1,14 @@
 // app.config.server.ts
-// FIX: Angular 21 SSR requiere provideServerRoutesConfig para registrar
-//      las serverRoutes definidas en app.routes.server.ts.
-//      Sin esto, el servidor no sabe cómo renderizar cada ruta (Prerender vs Server).
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
-import { provideServerRendering, provideServerRoutesConfig } from '@angular/ssr';
-import { appConfig } from './app.config';
+import { provideServerRendering } from '@angular/ssr';
 import { serverRoutes } from './app.routes.server';
+//import { provideServerRoutesConfig } from '@angular/ssr';
+import { appConfig } from './app.config';
 
 const serverConfig: ApplicationConfig = {
   providers: [
     provideServerRendering(),
-    provideServerRoutesConfig(serverRoutes), // ← CRÍTICO: registra las server routes
+    //provideServerRoutesConfig(serverRoutes),
   ],
 };
 
