@@ -19,8 +19,8 @@ import { RouterLink } from '@angular/router';
                    0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
         </svg>
       </div>
-      <h1 class="text-2xl font-bold text-gray-900">Rutas de Aprendizaje</h1>
-      <p class="text-gray-500 mt-2 max-w-md mx-auto">
+      <h1 class="text-2xl font-bold  text-slate-100">Rutas de Aprendizaje</h1>
+      <p class=" text-slate-100 mt-2 max-w-md mx-auto">
         Estamos diseñando rutas estructuradas para llevarte de cero a experto.
         ¡Muy pronto!
       </p>
