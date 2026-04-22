@@ -18,6 +18,7 @@ Una plataforma educacional impulsada por **Lumina**.
 - Sebastian Salvador Blanco Vaca
 - Emerson Raphael Mollo Isla
 - Jhomar Edilson Mamani Huanca
+- Share Brayan Camacho Banegas
 
 ---
 
