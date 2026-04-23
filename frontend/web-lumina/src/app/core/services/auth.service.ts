@@ -1,65 +1,252 @@
-// core/services/auth.service.ts
-import { Injectable, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+ 
+import {
+  Injectable, inject, signal, computed, PLATFORM_ID, OnDestroy,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { HttpClient }        from '@angular/common/http';
+import { Router }            from '@angular/router';
+import { Observable, BehaviorSubject, throwError }  from 'rxjs';
+import { tap, catchError, switchMap, filter, take } from 'rxjs/operators';
+ 
 import { ApiService } from './api.service';
-import { User } from '../models/user.model';
-import { tap } from 'rxjs/operators';
-
+import { User }       from '../models/user.model';
+import { environment } from '../../../environments/environment';
+import { ToastService } from './toast.service';
+ 
+// ─── Constants ────────────────────────────────────────────────────────────
+const TOKEN_KEY   = 'lumina_token';
+const REFRESH_KEY = 'lumina_refresh';
+ 
+// Refresh when token has less than this time remaining (ms)
+const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+ 
+// ─── Types ────────────────────────────────────────────────────────────────
 interface AuthResponse {
-  token: string;
-  user: User;
+  accessToken:  string;
+  refreshToken: string;
+  user:         User;
 }
-
+ 
+interface RefreshResponse {
+  accessToken: string;
+}
+ 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
-  private readonly api = inject(ApiService);
-  private readonly router = inject(Router);
+export class AuthService implements OnDestroy {
+  private readonly http       = inject(HttpClient);
+  private readonly api        = inject(ApiService);
+  private readonly router     = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
-
+  private readonly isBrowser  = isPlatformBrowser(this.platformId);
+ 
+  // ─── State ──────────────────────────────────────────────────────────────
   private readonly _currentUser = signal<User | null>(null);
-  private readonly _token = signal<string | null>(
-    this.isBrowser ? localStorage.getItem('lumina_token') : null
+  private readonly _token       = signal<string | null>(
+    this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null
   );
-
-  readonly currentUser = this._currentUser.asReadonly();
-  readonly isAuthenticated = computed(() => !!this._token());
-
-  login(email: string, password: string) {
+ 
+  readonly currentUser     = this._currentUser.asReadonly();
+  readonly isAuthenticated = computed(() => {
+    const token = this._token();
+    if (!token) return false;
+    // Also verify token hasn't expired locally (avoids pointless API calls)
+    return !this.isTokenExpired(token);
+  });
+ 
+  // ─── Refresh token race-condition prevention ─────────────────────────────
+  // BehaviorSubject(true) = "not currently refreshing"
+  // BehaviorSubject(false) = "refresh in progress — queue callers"
+  private readonly refreshReady$ = new BehaviorSubject<boolean>(true);
+  private isRefreshing = false;
+ 
+  // ─── Auto-logout timer ───────────────────────────────────────────────────
+  private logoutTimer: ReturnType<typeof setTimeout> | null = null;
+ 
+  constructor() {
+    // On app boot: if we have a token, schedule its expiry handler
+    const token = this._token();
+    if (token) this.scheduleTokenExpiry(token);
+  }
+ 
+  ngOnDestroy(): void {
+    if (this.logoutTimer) clearTimeout(this.logoutTimer);
+  }
+ 
+  // ─── Public API ─────────────────────────────────────────────────────────
+ 
+  login(email: string, password: string): Observable<AuthResponse> {
     return this.api.post<AuthResponse>('auth/login', { email, password }).pipe(
-      tap(({ token, user }) => {
-        if (this.isBrowser) {
-          localStorage.setItem('lumina_token', token);
-        }
-        this._token.set(token);
-        this._currentUser.set(user);
-      })
+      tap(res => this.persistSession(res)),
+      catchError(err => throwError(() => err))
     );
   }
-
-  register(data: { name: string; email: string; password: string }) {
+ 
+  register(data: { name: string; email: string; password: string }): Observable<AuthResponse> {
     return this.api.post<AuthResponse>('auth/register', data).pipe(
-      tap(({ token, user }) => {
-        if (this.isBrowser) {
-          localStorage.setItem('lumina_token', token);
-        }
-        this._token.set(token);
-        this._currentUser.set(user);
-      })
+      tap(res => this.persistSession(res))
     );
   }
-
+ 
   logout(): void {
-    if (this.isBrowser) {
-      localStorage.removeItem('lumina_token');
+    // Best-effort server-side token invalidation (fire and forget)
+    const refreshToken = this.isBrowser
+      ? localStorage.getItem(REFRESH_KEY)
+      : null;
+ 
+    if (refreshToken) {
+      this.http
+        .post(`${environment.apiUrl}/auth/logout`, { refreshToken })
+        .subscribe({ error: () => { /* ignore — local cleanup already done */ } });
     }
-    this._token.set(null);
-    this._currentUser.set(null);
+ 
+    this.clearSession();
     this.router.navigate(['/auth/login']);
   }
-
+ 
   getToken(): string | null {
     return this._token();
   }
+ 
+  // ─── Token refresh (called by auth.interceptor) ──────────────────────────
+  /**
+   * Refreshes the access token using the stored refresh token.
+   * Handles concurrent callers: only ONE refresh request fires;
+   * others queue and receive the new token once it's available.
+   */
+  refreshAccessToken(): Observable<string> {
+    if (this.isRefreshing) {
+      // Another call is already refreshing — wait for it
+      return this.refreshReady$.pipe(
+        filter(ready => ready),
+        take(1),
+        switchMap(() => {
+          const token = this._token();
+          if (!token) return throwError(() => new Error('No token after refresh'));
+          return [token];
+        })
+      );
+    }
+ 
+    this.isRefreshing = true;
+    this.refreshReady$.next(false);
+ 
+    const refreshToken = this.isBrowser
+      ? localStorage.getItem(REFRESH_KEY)
+      : null;
+ 
+    if (!refreshToken) {
+      this.handleRefreshFailure();
+      return throwError(() => new Error('No refresh token'));
+    }
+ 
+    return this.http
+      .post<RefreshResponse>(
+        `${environment.apiUrl}/auth/refresh`,
+        { refreshToken }
+      )
+      .pipe(
+        tap(res => {
+          this.storeToken(res.accessToken);
+          this.isRefreshing = false;
+          this.refreshReady$.next(true);
+        }),
+        switchMap(res => [res.accessToken]),
+        catchError(err => {
+          this.handleRefreshFailure();
+          return throwError(() => err);
+        })
+      );
+  }
+ 
+  needsRefresh(): boolean {
+    const token = this._token();
+    if (!token) return false;
+    const expiry = this.parseJwtExpiry(token);
+    if (!expiry) return false;
+    return expiry - Date.now() < REFRESH_THRESHOLD_MS;
+  }
+ 
+  // ─── Private helpers ────────────────────────────────────────────────────
+ 
+  private persistSession(res: AuthResponse): void {
+    this.storeToken(res.accessToken);
+ 
+    if (this.isBrowser) {
+      // SECURITY NOTE: Ideally, refreshToken should be in an HttpOnly cookie
+      // set by the server. Since we don't control the backend here, we store
+      // it in localStorage. Production consideration: move to HttpOnly cookie.
+      localStorage.setItem(REFRESH_KEY, res.refreshToken);
+    }
+ 
+    this._currentUser.set(res.user);
+    this.scheduleTokenExpiry(res.accessToken);
+  }
+ 
+  private storeToken(token: string): void {
+    if (this.isBrowser) localStorage.setItem(TOKEN_KEY, token);
+    this._token.set(token);
+    this.scheduleTokenExpiry(token);
+  }
+ 
+  private clearSession(): void {
+    if (this.isBrowser) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_KEY);
+    }
+    this._token.set(null);
+    this._currentUser.set(null);
+    if (this.logoutTimer) {
+      clearTimeout(this.logoutTimer);
+      this.logoutTimer = null;
+    }
+  }
+ 
+  private scheduleTokenExpiry(token: string): void {
+    if (this.logoutTimer) clearTimeout(this.logoutTimer);
+ 
+    const expiry = this.parseJwtExpiry(token);
+    if (!expiry) return;
+ 
+    const msUntilExpiry = expiry - Date.now();
+    if (msUntilExpiry <= 0) {
+      this.clearSession();
+      return;
+    }
+ 
+    this.logoutTimer = setTimeout(() => {
+      this.clearSession();
+      this.router.navigate(['/auth/login']);
+      // ToastService is injected lazily here to avoid circular deps
+      inject(ToastService)?.warning('Tu sesión expiró. Inicia sesión de nuevo.');
+    }, msUntilExpiry);
+  }
+ 
+  private handleRefreshFailure(): void {
+    this.isRefreshing = false;
+    this.refreshReady$.next(true);
+    this.clearSession();
+    this.router.navigate(['/auth/login']);
+  }
+ 
+  /**
+   * Parses a JWT payload without external dependencies.
+   * Returns expiry timestamp in milliseconds, or null if unparseable.
+   */
+  private parseJwtExpiry(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      return decoded.exp ? decoded.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+ 
+  private isTokenExpired(token: string): boolean {
+    const expiry = this.parseJwtExpiry(token);
+    if (!expiry) return false; // No expiry claim → treat as valid
+    return Date.now() >= expiry;
+  }
 }
+ 

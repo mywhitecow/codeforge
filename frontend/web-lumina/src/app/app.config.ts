@@ -15,13 +15,14 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { routes } from './app.routes';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
     provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor]),
+      withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor]),
       withFetch(), // obligatorio para SSR: usa fetch nativo en lugar de XHR
     ),
     provideAnimationsAsync(),
