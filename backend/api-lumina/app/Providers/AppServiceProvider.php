@@ -17,5 +17,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // 2. Le ordenamos al modelo Course que sea vigilado por el Observer
         Course::observe(CourseObserver::class);
+        Config::set('auth.verification.expire', 15);
     }
 }

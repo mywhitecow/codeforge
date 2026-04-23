@@ -17,6 +17,16 @@ use App\Http\Controllers\RegistrationController;
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Verificación de email (Link del correo)
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])
+        ->middleware(['signed'])
+        ->name('verification.verify');
+
+    // Reenviar verificación
+    Route::post('/email/verification-notification', [AuthController::class, 'resend'])
+        ->middleware(['auth:sanctum', 'throttle:6,1'])
+        ->name('verification.send');
 });
 
 // Rutas protegidas (Requieren token de Sanctum)
