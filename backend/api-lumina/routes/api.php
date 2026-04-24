@@ -43,3 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Nueva ruta para inscripciones (LUM-8)
     Route::post('/courses/{id}/enroll', [RegistrationController::class, 'enroll']);
 });
+
+// Esta ruta sirve para /auth/github/redirect y /auth/google/redirect
+Route::get('/auth/{provider}/redirect', [AuthController::class, 'redirectToProvider']);
+
+// Esta ruta sirve para /auth/github/callback y /auth/google/callback
+Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderCallback']);
