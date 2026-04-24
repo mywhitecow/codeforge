@@ -8,9 +8,56 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->stateless()->redirect();
+    }
+
+    public function handleProviderCallback($provider)
+    {
+        try {
+            $socialUser = Socialite::driver($provider)->stateless()->user();
+            
+            // ... dentro de handleProviderCallback
+            $user = User::where($provider . '_id', $socialUser->getId())
+            ->orWhere('email', $socialUser->getEmail())
+            ->first();
+
+            if (!$user) {
+            // Si no existe, creamos el usuario
+            $user = User::create([
+                'name' => $socialUser->getName(),
+                'email' => $socialUser->getEmail(),
+                'avatar_url' => $socialUser->getAvatar(),
+                $provider . '_id' => $socialUser->getId(),
+                'role_id' => 2,
+                'email_verified_at' => now(),
+                ]);
+        } else {
+            // SI YA EXISTE: Verificamos si el ID de este proveedor está vacío y lo vinculamos
+            if (!$user->{$provider . '_id'}) {
+                $user->update([
+                $provider . '_id' => $socialUser->getId(),
+                // Opcional: actualizar el avatar si el nuevo es mejor
+                'avatar_url' => $user->avatar_url ?? $socialUser->getAvatar()
+                ]);
+            }
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Redirigimos al frontend con el token (puedes ajustarlo según tu necesidad)
+        return redirect('http://localhost:4200/login-success?token=' . $token);
+
+    // Por esto (solo para probar):
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+    }
     // 1. Función para Registrar un nuevo usuario
     public function register(Request $request)
     {
