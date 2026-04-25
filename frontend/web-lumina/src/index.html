@@ -17,16 +17,19 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: white;
+      /* Corregido: Coincide con tu variable --color-bg */
+      background: #0D1B2E; 
+      /* Corregido: Color de texto para que sea legible sobre el fondo oscuro */
+      color: #E2E8F0; 
       display: none;
       justify-content: center;
       align-items: center;
-      font-family: sans-serif;
+      font-family: 'Inter', sans-serif;
       z-index: 9999;
     }
   </style>
 </head>
-<body>
+<body style="background-color: #0D1B2E; color: #E2E8F0; margin: 0;">
   <app-root></app-root>
   <div class="loading">Cargando...</div>
 </body>
