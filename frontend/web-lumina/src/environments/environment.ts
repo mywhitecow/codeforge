@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost/php-api' // URL de tu backend PHP
+  apiUrl: 'http://localhost:8000/api' // URL de tu backend PHP
 };
