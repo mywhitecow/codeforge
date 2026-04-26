@@ -32,7 +32,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 export class AppComponent implements AfterViewInit {
   private readonly platformId = inject(PLATFORM_ID);
 
-  readonly title = 'LUMINA';
+  readonly title = 'CodeForge Academy';
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {

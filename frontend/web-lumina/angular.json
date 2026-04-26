@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "web-lumina": {
+    "web-codeforge-academy": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -104,10 +104,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "web-lumina:build:production"
+              "buildTarget": "web-codeforge-academy:build:production"
             },
             "development": {
-              "buildTarget": "web-lumina:build:development"
+              "buildTarget": "web-codeforge-academy:build:development"
             }
           },
           "defaultConfiguration": "development"

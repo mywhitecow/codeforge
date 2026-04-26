@@ -1,5 +1,5 @@
 {
-  "name": "web-lumina",
+  "name": "web-codeforge-academy",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:web-lumina": "node dist/web-lumina/server/server.mjs"
+    "serve:ssr:web-codeforge-academy": "node dist/web-codeforge-academy/server/server.mjs"
   },
   "private": true,
   "packageManager": "npm@11.11.0",

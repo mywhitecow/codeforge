@@ -14,8 +14,8 @@ import { environment } from '../../../environments/environment';
 import { ToastService } from './toast.service';
 
 // ─── Constants ────────────────────────────────────────────────────────────
-const TOKEN_KEY = 'lumina_token';
-const REFRESH_KEY = 'lumina_refresh';
+const TOKEN_KEY = 'codeforge_token';
+const REFRESH_KEY = 'codeforge_refresh';
 
 // Refresh when token has less than this time remaining (ms)
 const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes

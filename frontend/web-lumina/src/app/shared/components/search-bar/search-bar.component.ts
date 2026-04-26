@@ -1,5 +1,5 @@
 // search-bar.component.ts
-// Archivo: frontend/web-lumina/src/app/shared/components/search-bar/search-bar.component.ts
+// Archivo: frontend/web-codeforge-academy/src/app/shared/components/search-bar/search-bar.component.ts
 //
 // CAMBIOS vs versión original:
 //  1. El input usa la clase global "input-search" (definida en styles.scss)
@@ -41,7 +41,7 @@ import { FormsModule } from '@angular/forms';
         (keyup.enter)="onSearch()"
         placeholder="Buscar cursos, rutas, escuelas..."
         class="input-search"
-        aria-label="Buscar en LUMINA"
+        aria-label="Buscar en CodeForge Academy"
         autocomplete="off"
       />
 
