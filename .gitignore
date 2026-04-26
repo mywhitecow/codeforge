@@ -1,27 +1,41 @@
-# Dependencias
+```
+# Dependencies
 node_modules/
-vendor/
 
-# Compilados y empaquetados (Angular)
+# Build artifacts
 dist/
-out-tsc/
-.angular/
+build/
+coverage/
 
-# Archivos de entorno protegidos (Laravel/Angular)
+# Environment variables
 .env
+.env.local
 .env.*
-!.env.example
 
-# Logs y cachés
-npm-debug.log
-yarn-error.log
-yarn-debug.log
-storage/*.key
-.phpunit.result.cache
-
-# Archivos propios del Sistema Operativo y Editores
-.idea/
+# IDE specific
 .vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Python cache (if any Python files exist in project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary files
+*.tmp
 .DS_Store
 Thumbs.db
-*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# Angular specific
+.angular/
+```

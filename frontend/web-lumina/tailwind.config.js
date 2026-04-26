@@ -5,9 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Paleta LUMINA como tokens Tailwind — permite usar text-lumina-primary etc.
+      // Paleta CodeForge Academy como tokens Tailwind — permite usar text-codeforge-primary etc.
       colors: {
-        lumina: {
+        codeforge: {
           primary:      '#38BDF8',
           'primary-h':  '#0EA5E9',
           dark:         '#0B172C',
