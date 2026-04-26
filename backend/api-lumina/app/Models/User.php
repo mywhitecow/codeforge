@@ -10,13 +10,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Traits\Auditable;
 
-#[Fillable(['name', 'email', 'password', 'role_id', 'github_id', 'google_id', 'avatar_url'])]
+#[Fillable(['name', 'email', 'password', 'role_id', 'github_id', 'google_id', 'avatar_url', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Auditable;
 
     /**
      * Get the attributes that should be cast.
@@ -30,7 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
-    // User.php
+
     public function role() {
         return $this->belongsTo(Role::class);
     }

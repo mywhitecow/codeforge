@@ -22,68 +22,74 @@ class AuthController extends Controller
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
             
-            // ... dentro de handleProviderCallback
+            // Buscamos por ID de red social o por Email
             $user = User::where($provider . '_id', $socialUser->getId())
-            ->orWhere('email', $socialUser->getEmail())
-            ->first();
+                ->orWhere('email', $socialUser->getEmail())
+                ->first();
 
             if (!$user) {
-            // Si no existe, creamos el usuario
-            $user = User::create([
-                'name' => $socialUser->getName(),
-                'email' => $socialUser->getEmail(),
-                'avatar_url' => $socialUser->getAvatar(),
-                $provider . '_id' => $socialUser->getId(),
-                'role_id' => 2,
-                'email_verified_at' => now(),
+                // CASO 1: El usuario no existe, lo creamos desde cero
+                $user = User::create([
+                    'name' => $socialUser->getName(),
+                    'email' => $socialUser->getEmail(),
+                    'avatar_url' => $socialUser->getAvatar(),
+                    $provider . '_id' => $socialUser->getId(),
+                    'role_id' => 2, // Estudiante por defecto
+                    'email_verified_at' => now(), // Verificación inmediata por OAuth
                 ]);
-        } else {
-            // SI YA EXISTE: Verificamos si el ID de este proveedor está vacío y lo vinculamos
-            if (!$user->{$provider . '_id'}) {
-                $user->update([
-                $provider . '_id' => $socialUser->getId(),
-                // Opcional: actualizar el avatar si el nuevo es mejor
-                'avatar_url' => $user->avatar_url ?? $socialUser->getAvatar()
-                ]);
+            } else {
+                // CASO 2: El usuario ya existe, actualizamos sus datos
+                $updates = [];
+
+                // Si no tenía el ID de esta red social, lo vinculamos
+                if (!$user->{$provider . '_id'}) {
+                    $updates[$provider . '_id'] = $socialUser->getId();
+                }
+
+                // Si no estaba verificado, lo marcamos como verificado ahora
+                if (is_null($user->email_verified_at)) {
+                    $updates['email_verified_at'] = now();
+                }
+
+                // Si hay algo que actualizar (ID social o verificación), guardamos
+                if (!empty($updates)) {
+                    $user->update($updates);
+                }
             }
+
+            // Generamos el token de sesión
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Redirigimos al frontend con el token
+            return redirect('http://localhost:4200/login-success?token=' . $token);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        // Redirigimos al frontend con el token (puedes ajustarlo según tu necesidad)
-        return redirect('http://localhost:4200/login-success?token=' . $token);
-
-    // Por esto (solo para probar):
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-    }
-    // 1. Función para Registrar un nuevo usuario
+
     public function register(Request $request)
     {
-        // Validamos que el frontend nos envíe los datos correctos
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role_id' => 'nullable|exists:roles,id' // Puede ser nulo, si lo es, asignamos 2 por defecto
+            'role_id' => 'nullable|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        // Creamos al usuario en la base de datos de PostgreSQL
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Encriptamos la contraseña
-            'role_id' => $request->role_id ?? 2, // 2 = Estudiante por defecto
+            'password' => Hash::make($request->password),
+            'role_id' => $request->role_id ?? 2,
         ]);
 
         event(new Registered($user));
 
-        // Generamos el token de seguridad con Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -94,62 +100,43 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // 2. Función para Iniciar Sesión
     public function login(Request $request)
     {
-        // Buscamos al usuario por su email
         $user = User::where('email', $request->email)->first();
 
-        // Verificamos si existe y si la contraseña coincide
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Credenciales incorrectas'
-            ], 401);
+            return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
-        // Si todo está bien, le damos un nuevo pase VIP (Token)
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login exitoso',
             'user' => $user,
-            'token' => $token, // <-- Le quitamos el "access_"
+            'token' => $token,
             'token_type' => 'Bearer'
         ]);
     }
 
-    // 3. Función para Cerrar Sesión (Destruir el token)
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Sesión cerrada correctamente'
-        ]);
+        return response()->json(['message' => 'Sesión cerrada correctamente']);
     }
 
-    // 4. Verificación de Email
     public function verify(EmailVerificationRequest $request)
     {
         $request->fulfill();
-
-        // Redirigir al frontend (Angular)
         return redirect('http://localhost:4200/login?verified=1');
     }
 
-    // 5. Reenviar Email de Verificación
     public function resend(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return response()->json([
-                'message' => 'El email ya ha sido verificado'
-            ], 400);
+            return response()->json(['message' => 'El email ya ha sido verificado'], 400);
         }
 
         $request->user()->sendEmailVerificationNotification();
-
-        return response()->json([
-            'message' => 'Link de verificación enviado'
-        ]);
+        return response()->json(['message' => 'Link de verificación enviado']);
     }
 }
