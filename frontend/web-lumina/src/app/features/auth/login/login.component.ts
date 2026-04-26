@@ -25,7 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
         <!-- Logo + Encabezado -->
         <div class="text-center mb-8">
-          <a routerLink="/" class="inline-flex items-center gap-3 group mb-4" aria-label="LUMINA — Ir al inicio">
+          <a routerLink="/" class="inline-flex items-center gap-3 group mb-4" aria-label="CodeForge Academy — Ir al inicio">
             <svg width="44" height="44" viewBox="0 0 32 32" fill="none" class="transition-transform duration-300 group-hover:rotate-12" aria-hidden="true">
               <circle cx="16" cy="16" r="15" fill="url(#login-grad)" />
               <path d="M10 22 L16 10 L22 22 Z" fill="none" stroke="white" stroke-width="2" stroke-linejoin="round" />
@@ -37,7 +37,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 </linearGradient>
               </defs>
             </svg>
-            <span class="text-2xl font-bold text-white tracking-tight">LUMINA</span>
+            <span class="text-2xl font-bold text-white tracking-tight">CodeForge Academy</span>
           </a>
           <h1 class="text-white text-2xl font-semibold tracking-tight">Bienvenido de vuelta</h1>
           <p class="text-slate-300 mt-1.5 text-sm">Inicia sesión para continuar aprendiendo</p>
@@ -139,7 +139,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 </svg>
                 Ingresando...
               } @else {
-                Ingresar a LUMINA
+                Ingresar a CodeForge Academy
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                 </svg>
