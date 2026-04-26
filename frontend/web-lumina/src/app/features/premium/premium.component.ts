@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
 
 interface Plan {
   title: string;
@@ -15,7 +15,7 @@ interface Plan {
 @Component({
   selector: 'app-premium',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,NgFor, NgIf, NgClass],
   templateUrl: './premium.component.html',
   styleUrl: './premium.component.scss'
 })
@@ -48,7 +48,7 @@ export class PremiumComponent {
       ],
       isPopular: true,
       buttonType: 'solid',
-      buttonText: 'Postula ahora'
+      buttonText: '¡Hazte pro!'
     },
     {
       title: 'Premium',
@@ -62,7 +62,7 @@ export class PremiumComponent {
         'Garantía de satisfacción'
       ],
       buttonType: 'solid',
-      buttonText: 'Contacta a ventas'
+      buttonText: '¡Hazte premium!'
     }
   ];
 
