@@ -20,6 +20,9 @@ export type UserRole = 'admin' | 'instructor' | 'student';
 export type SubscriptionTier = 'free' | 'basic' | 'premium';
 
 export interface User {
+[x: string]: any;
+has: any;
+
   id:               string;
   name:             string;
   email:            string;
