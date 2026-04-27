@@ -14,7 +14,7 @@
 
     <!-- LISTA DE OPCIONES -->
     <div class="menu-list">
-      @for (item of menuItems; track item.label) {
+      @for (item of menuItems(); track item.label) {
         <div class="menu-item" (click)="navigateTo(item.route)">
           <span class="menu-icon">{{ item.icon }}</span>
           <span>{{ item.label }}</span>

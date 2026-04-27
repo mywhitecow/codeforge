@@ -1,6 +1,6 @@
 // features/user-profile/profile/profile.component.ts
 import {
-  Component, inject, signal, OnInit, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, inject, signal, OnInit, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef, effect
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -375,15 +375,21 @@ export class ProfileComponent implements OnInit {
   ];
 
   ngOnInit() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const user = this.auth.currentUser();
-    if (user) {
-      this.form.name        = user.name        ?? '';
-      this.form.phone       = user.phone       ?? '';
-      this.form.bio         = user.bio         ?? '';
-      this.form.dateOfBirth = user.dateOfBirth ?? '';
-      this.form.avatarUrl   = user.avatarUrl   ?? '';
-    }
+    // Other initializations can go here
+  }
+
+  constructor() {
+    // Reactively update form when currentUser changes
+    effect(() => {
+      const user = this.auth.currentUser();
+      if (user) {
+        this.form.name        = user.name        ?? '';
+        this.form.phone       = user.phone       ?? '';
+        this.form.bio         = user.bio         ?? '';
+        this.form.dateOfBirth = user.dateOfBirth ?? '';
+        this.form.avatarUrl   = user.avatarUrl   ?? '';
+      }
+    });
   }
 
   initial(name: string) { return name?.charAt(0).toUpperCase() ?? '?'; }

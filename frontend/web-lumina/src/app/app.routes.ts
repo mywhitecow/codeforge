@@ -34,17 +34,17 @@ export const routes: Routes = [
   // ── Rutas de Contenido (cualquier usuario autenticado) ─────────────────
   {
     path: 'courses',
-   // canActivate: [authGuard],
+   canActivate: [authGuard],
     loadChildren: () => import('./features/courses/routes').then(m => m.COURSE_ROUTES),
   },
   {
     path: 'paths',
-    //canActivate: [authGuard],
+    canActivate: [authGuard],
     loadChildren: () => import('./features/paths/routes').then(m => m.PATHS_ROUTES),
   },
   {
     path: 'schools',
-   // canActivate: [authGuard],
+    canActivate: [authGuard],
     loadChildren: () => import('./features/schools/routes').then(m => m.SCHOOLS_ROUTES),
   },
 

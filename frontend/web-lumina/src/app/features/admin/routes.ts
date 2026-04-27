@@ -38,16 +38,16 @@ export const ADMIN_ROUTES: Routes = [
     path: 'courses/new',
     canActivate: [adminGuard],
     loadComponent: () =>
-      import('./courses/admin-course-form.component').then(
-        m => m.AdminCourseFormComponent
+      import('../instructor/courses/instructor-course-form.component').then(
+        m => m.InstructorCourseFormComponent
       ),
   },
   {
     path: 'courses/:id/edit',
     canActivate: [adminGuard],
     loadComponent: () =>
-      import('./courses/admin-course-form.component').then(
-        m => m.AdminCourseFormComponent
+      import('../instructor/courses/instructor-course-form.component').then(
+        m => m.InstructorCourseFormComponent
       ),
   },
   {
