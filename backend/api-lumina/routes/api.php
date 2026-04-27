@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Rutas del CRUD de cursos (LUM-7)
     Route::apiResource('courses', CourseController::class);
+    
+    // Rutas del CRUD de usuarios (Solo admins, verificado en UserController)
+    Route::apiResource('users', UserController::class);
     
     // Nueva ruta para inscripciones (LUM-8)
     Route::post('/courses/{id}/enroll', [RegistrationController::class, 'enroll']);

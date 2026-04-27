@@ -18,7 +18,9 @@ class Course extends Model
         'price',
         'category_id',
         'instructor_id',
-        'min_subscription_id'
+        'min_subscription_id',
+        'thumbnail_url',
+        'is_active'
     ];
 
     // 2. Aquí abajo continúan tus relaciones intactas...

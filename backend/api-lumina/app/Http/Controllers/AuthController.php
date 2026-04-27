@@ -134,11 +134,24 @@ class AuthController extends Controller
     {
         $user = $request->user()->load('role', 'registrations');
 
+        // Mapeamos el nombre del rol (en español/BD) al formato que espera Angular
+        $roleMap = [
+            'admin'      => 'admin',
+            'Admin'      => 'admin',
+            'instructor' => 'instructor',
+            'Instructor' => 'instructor',
+            'estudiante' => 'student',
+            'Estudiante' => 'student',
+            'student'    => 'student',
+        ];
+        $rawRole     = $user->role?->nombre ?? 'Estudiante';
+        $mappedRole  = $roleMap[$rawRole] ?? 'student';
+
         return response()->json([
             'id'               => (string) $user->id,
             'name'             => $user->name,
             'email'            => $user->email,
-            'role'             => $user->role?->name ?? 'student',
+            'role'             => $mappedRole,
             'avatarUrl'        => $user->avatar_url,
             'bio'              => $user->bio,
             'phone'            => $user->phone,

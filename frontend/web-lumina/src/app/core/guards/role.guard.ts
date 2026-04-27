@@ -85,3 +85,24 @@ export const instructorGuard: CanActivateFn = roleGuard(['admin', 'instructor'])
 
 /** Acceso para cualquier usuario autenticado (todos los roles) */
 export const authGuard: CanActivateFn = roleGuard([]);
+
+/**
+ * Guard para páginas PÚBLICAS (login, register).
+ * Si el usuario YA está autenticado, lo redirige a /courses.
+ * Evita que un usuario logueado vea la pantalla de login.
+ */
+export const noAuthGuard: CanActivateFn = (route, state) => {
+  const auth       = inject(AuthService);
+  const router     = inject(Router);
+  const platformId = inject(PLATFORM_ID);
+
+  // En SSR siempre dejamos pasar (no hay localStorage)
+  if (!isPlatformBrowser(platformId)) return true;
+
+  // Si ya está autenticado → redirigir a cursos
+  if (auth.isAuthenticated()) {
+    return router.createUrlTree(['/courses']);
+  }
+
+  return true;
+};

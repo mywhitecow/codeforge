@@ -2,6 +2,7 @@
 import { Component, Output, EventEmitter, HostListener, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { PermissionService } from '../../../core/services/permission.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,6 +17,7 @@ export class ProfileDropdownComponent {
 
   private auth = inject(AuthService);
   private router = inject(Router);
+  private permissions = inject(PermissionService);
 
   // Usuario actual desde AuthService
   currentUser = this.auth.currentUser;
@@ -44,14 +46,24 @@ export class ProfileDropdownComponent {
   // Estado del submenú de moneda
   showCurrencyMenu = false;
 
-  // Opciones del menú con rutas REALES de tu aplicación
-  menuItems = [
-    { label: 'Tu perfil',     icon: '👤', route: '/profile' },
-    { label: 'Tus estudios',  icon: '🎓', route: '/paths' },        // /paths ya existe
-    { label: 'Tus cursos',    icon: '📚', route: '/my-courses' },    // Redirigiremos después
-    { label: 'Tus apuntes',   icon: '✏️', route: '/notes' },         // Nueva ruta
-    { label: 'Ayuda',         icon: '❓', route: '/help' }           // Nueva ruta
-  ];
+  // Opciones del menú con rutas REALES de tu aplicación (calculado dinámicamente según permisos)
+  menuItems = computed(() => {
+    const items = [
+      { label: 'Tu perfil',     icon: '👤', route: '/profile' },
+      { label: 'Tus estudios',  icon: '🎓', route: '/paths' },
+      { label: 'Tus cursos',    icon: '📚', route: '/my-courses' },
+      { label: 'Tus apuntes',   icon: '✏️', route: '/notes' },
+    ];
+
+    if (this.permissions.isAdmin()) {
+      items.push({ label: 'Panel de Admin', icon: '⚙️', route: '/admin' });
+    } else if (this.permissions.isInstructor()) {
+      items.push({ label: 'Panel Instructor', icon: '🏫', route: '/instructor' });
+    }
+
+    items.push({ label: 'Ayuda', icon: '❓', route: '/help' });
+    return items;
+  });
 
   // Navegar y cerrar menú
   navigateTo(route: string): void {

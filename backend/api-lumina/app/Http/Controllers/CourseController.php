@@ -26,16 +26,20 @@ class CourseController extends Controller
             'level' => 'required|string|max:50',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id', 
-            'instructor_id' => 'required|exists:users,id', 
-            'min_subscription_id' => 'nullable|exists:subscription_plans,id' 
+            'thumbnail_url' => 'nullable|url|max:500',
+            'is_active' => 'boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        // Si todo es válido, guardamos en PostgreSQL
-        $course = Course::create($request->all());
+        $data = $request->all();
+        // Asignamos el instructor automáticamente al usuario autenticado
+        $data['instructor_id'] = $request->user()->id;
+
+        // Si todo es válido, guardamos en la base de datos
+        $course = Course::create($data);
 
         return response()->json([
             'message' => 'Curso creado exitosamente',
@@ -64,7 +68,27 @@ class CourseController extends Controller
             return response()->json(['message' => 'Curso no encontrado'], 404);
         }
 
-        // Actualizamos los datos. Validaciones similares al store podrían ir aquí en un entorno real.
+        $validator = Validator::make($request->all(), [
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string|max:1000',
+            'duration' => 'sometimes|required|integer', 
+            'level' => 'sometimes|required|string|max:50',
+            'price' => 'sometimes|required|numeric',
+            'category_id' => 'sometimes|required|exists:categories,id', 
+            'thumbnail_url' => 'nullable|url|max:500',
+            'is_active' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        // Solo permitir actualizar si es el dueño o es un admin
+        if ($course->instructor_id !== $request->user()->id && $request->user()->role_id !== 1) {
+            return response()->json(['message' => 'No tienes permiso para editar este curso'], 403);
+        }
+
+        // Actualizamos los datos
         $course->update($request->all());
 
         return response()->json([
@@ -73,8 +97,8 @@ class CourseController extends Controller
         ], 200);
     }
 
-    // 5. Borrar un curso
-    public function destroy($id)
+    // 5. Borrar un curso (Soft Delete)
+    public function destroy(Request $request, $id)
     {
         $course = Course::find($id);
 
@@ -82,8 +106,14 @@ class CourseController extends Controller
             return response()->json(['message' => 'Curso no encontrado'], 404);
         }
 
-        $course->delete();
+        // Solo permitir borrar si es el dueño o es un admin
+        if ($course->instructor_id !== $request->user()->id && $request->user()->role_id !== 1) {
+            return response()->json(['message' => 'No tienes permiso para eliminar este curso'], 403);
+        }
 
-        return response()->json(['message' => 'Curso eliminado correctamente'], 200);
+        // Soft Delete
+        $course->update(['is_active' => false]);
+
+        return response()->json(['message' => 'Curso desactivado correctamente'], 200);
     }
 }

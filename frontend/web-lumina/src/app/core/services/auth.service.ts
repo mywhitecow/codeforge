@@ -42,7 +42,7 @@ export class AuthService implements OnDestroy {
   // ─── State ──────────────────────────────────────────────────────────────
   private readonly _currentUser = signal<User | null>(null);
   private readonly _token = signal<string | null>(
-    this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null
+    this.isBrowser ? sessionStorage.getItem(TOKEN_KEY) : null
   );
 
   readonly currentUser = this._currentUser.asReadonly();
@@ -73,6 +73,11 @@ export class AuthService implements OnDestroy {
     // Angular detecta una dependencia circular (NG0200).
     // La solución: diferir con setTimeout(0) para que el constructor termine
     // de ejecutarse primero y Angular marque AuthService como listo.
+    if (this.isBrowser) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_KEY);
+    }
+
     const token = this._token();
     if (token && !this.isTokenExpired(token)) {
       this.scheduleTokenExpiry(token);
@@ -144,7 +149,7 @@ export class AuthService implements OnDestroy {
    * vea isAuthenticated() = true inmediatamente sin recargar la página.
    */
   acceptExternalToken(token: string): void {
-    if (this.isBrowser) localStorage.setItem(TOKEN_KEY, token);
+    if (this.isBrowser) sessionStorage.setItem(TOKEN_KEY, token);
     this._token.set(token);
     this.scheduleTokenExpiry(token);
   }
@@ -181,7 +186,7 @@ export class AuthService implements OnDestroy {
     this.refreshReady$.next(false);
 
     const refreshToken = this.isBrowser
-      ? localStorage.getItem(REFRESH_KEY)
+      ? sessionStorage.getItem(REFRESH_KEY)
       : null;
 
     if (!refreshToken) {
@@ -224,8 +229,8 @@ export class AuthService implements OnDestroy {
     if (this.isBrowser) {
       // SECURITY NOTE: Ideally, refreshToken should be in an HttpOnly cookie
       // set by the server. Since we don't control the backend here, we store
-      // it in localStorage. Production consideration: move to HttpOnly cookie.
-      localStorage.setItem(REFRESH_KEY, res.refreshToken);
+      // it in sessionStorage. Production consideration: move to HttpOnly cookie.
+      sessionStorage.setItem(REFRESH_KEY, res.refreshToken);
     }
 
     this._currentUser.set(res.user);
@@ -233,15 +238,15 @@ export class AuthService implements OnDestroy {
   }
 
   private storeToken(token: string): void {
-    if (this.isBrowser) localStorage.setItem(TOKEN_KEY, token);
+    if (this.isBrowser) sessionStorage.setItem(TOKEN_KEY, token);
     this._token.set(token);
     this.scheduleTokenExpiry(token);
   }
 
   private clearSession(): void {
     if (this.isBrowser) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(REFRESH_KEY);
     }
     this._token.set(null);
     this._currentUser.set(null);

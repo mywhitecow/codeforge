@@ -14,4 +14,16 @@ export class CourseService {
   getById(id: string) {
     return this.api.get<CourseDetail>(`courses/${id}`);
   }
+
+  create(data: any) {
+    return this.api.post<{ message: string; course: Course }>('courses', data);
+  }
+
+  update(id: string, data: any) {
+    return this.api.put<{ message: string; course: Course }>(`courses/${id}`, data);
+  }
+
+  delete(id: string) {
+    return this.api.delete<{ message: string }>(`courses/${id}`);
+  }
 }
