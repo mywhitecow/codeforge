@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class Course extends Model
 {
     use HasFactory;
@@ -28,7 +29,7 @@ class Course extends Model
 
     public function minSubscriptionPlan() {
         return $this->belongsTo(SubscriptionPlan::class, 'min_subscription_id');
-    }
+    }   
 
     public function registrations() {
         return $this->belongsToMany(Registration::class, 'course_enrollments')

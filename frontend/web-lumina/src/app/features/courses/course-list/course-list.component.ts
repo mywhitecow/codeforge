@@ -10,12 +10,12 @@ import { RouterLink } from '@angular/router';
 
 import { CourseService } from '../services/course.service';
 import { Course } from '../../../core/models/course.model';
-
+import { CourseCarouselComponent } from '../components/course-carousel/course-carousel.component';
 @Component({
   selector: 'app-course-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, CourseCarouselComponent],
   template: `
     <div class="page-container">
 
@@ -24,6 +24,8 @@ import { Course } from '../../../core/models/course.model';
         <h1 class="text-3xl font-bold text-slate-100">Catálogo de cursos</h1>
         <p class="text-slate-400 mt-2">Aprende con los mejores expertos de la industria</p>
       </div>
+       <!-- Carousel de cursos destacados -->
+      <app-course-carousel />
 
       <!-- Filtros de nivel -->
       <div class="flex gap-2 mb-6 flex-wrap">
