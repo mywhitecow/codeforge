@@ -60,8 +60,8 @@ class AuthController extends Controller
             // Generamos el token de sesión
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // Redirigimos al frontend con el token
-            return redirect('http://localhost:4200/login-success?token=' . $token);
+            // URL-encode el token para que el | de Sanctum no rompa la URL
+            return redirect('http://localhost:4200/login-success?token=' . urlencode($token));
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -122,6 +122,80 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Sesión cerrada correctamente']);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user()->load('role', 'registrations');
+
+        return response()->json([
+            'id'               => (string) $user->id,
+            'name'             => $user->name,
+            'email'            => $user->email,
+            'role'             => $user->role?->name ?? 'student',
+            'avatarUrl'        => $user->avatar_url,
+            'bio'              => $user->bio,
+            'phone'            => $user->phone,
+            'dateOfBirth'      => $user->date_of_birth,
+            'isActive'         => $user->is_active,
+            'lastLoginAt'      => $user->last_login_at,
+            'createdAt'        => $user->created_at,
+            // Flags de seguridad — no exponemos los IDs reales
+            'hasPassword'      => !is_null($user->password),
+            'hasGoogle'        => !is_null($user->google_id),
+            'hasGithub'        => !is_null($user->github_id),
+            'enrolledCourseIds'=> $user->registrations->pluck('course_id')->map(fn($id) => (string)$id)->values()->all(),
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'          => 'sometimes|string|max:255',
+            'phone'         => 'sometimes|nullable|string|max:30',
+            'bio'           => 'sometimes|nullable|string|max:1000',
+            'date_of_birth' => 'sometimes|nullable|date',
+            'avatar_url'    => 'sometimes|nullable|url|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $request->user()->update(
+            $request->only(['name', 'phone', 'bio', 'date_of_birth', 'avatar_url'])
+        );
+
+        return $this->me($request);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user        = $request->user();
+        $hasPassword = !is_null($user->password);
+
+        // Si el usuario tiene contraseña, pedimos la actual para verificar.
+        // Si vino de OAuth (password = null) solo pedimos la nueva.
+        $rules = [
+            'new_password'              => 'required|string|min:8|confirmed',
+            'new_password_confirmation' => 'required',
+        ];
+        if ($hasPassword) {
+            $rules['current_password'] = 'required|string';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        if ($hasPassword && !Hash::check($request->current_password, $user->password)) {
+            return response()->json(['error' => 'La contraseña actual es incorrecta.'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente.']);
     }
 
     public function verify(EmailVerificationRequest $request)

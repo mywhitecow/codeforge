@@ -39,6 +39,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ruta de logout (Ahora será /api/auth/logout si decides usar el mismo prefijo)
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
+        // Perfil del usuario autenticado — usado por AuthService.loadCurrentUser()
+        Route::get('/me', [AuthController::class, 'me']);
+        // Edición de perfil y contraseña
+        Route::put('/profile',  [AuthController::class, 'updateProfile']);
+        Route::put('/password', [AuthController::class, 'updatePassword']);
     });
     
     // Rutas del CRUD de cursos (LUM-7)

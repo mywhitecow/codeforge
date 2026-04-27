@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\Auditable;
 
-#[Fillable(['name', 'email', 'password', 'role_id', 'github_id', 'google_id', 'avatar_url', 'email_verified_at'])]
+#[Fillable(['name', 'email', 'password', 'role_id', 'github_id', 'google_id', 'avatar_url', 'email_verified_at', 'phone', 'bio', 'date_of_birth'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {

@@ -16,7 +16,8 @@
 //   2. Si está autenticado pero el rol no coincide → redirige a /unauthorized
 //   3. Si todo OK → permite el acceso
 // ─────────────────────────────────────────────────────────────────────────────
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { PermissionService } from '../services/permission.service';
@@ -42,6 +43,11 @@ export function roleGuard(allowedRoles: UserRole[]): CanActivateFn {
     const auth        = inject(AuthService);
     const permissions = inject(PermissionService);
     const router      = inject(Router);
+    const platformId  = inject(PLATFORM_ID);
+
+    // ── SSR: el servidor no tiene localStorage → dejar pasar siempre.
+    // El guard del lado cliente (browser) hará la verificación real.
+    if (!isPlatformBrowser(platformId)) return true;
 
     // ── Paso 1: ¿Está autenticado? ───────────────────────────────────────
     if (!auth.isAuthenticated()) {

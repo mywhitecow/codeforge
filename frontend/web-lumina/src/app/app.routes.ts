@@ -105,6 +105,15 @@ export const routes: Routes = [
       ),
   },
 
+  // ── OAuth callback (backend redirige aquí tras login social) ───────────
+  {
+    path: 'login-success',
+    loadComponent: () =>
+      import('./features/auth/login-success/login-success.component').then(
+        m => m.LoginSuccessComponent
+      ),
+  },
+
   // ── Redirecciones ──────────────────────────────────────────────────────
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
   { path: '**', redirectTo: '/courses' },
