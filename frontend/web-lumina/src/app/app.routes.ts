@@ -68,10 +68,11 @@ export const routes: Routes = [
 
   // ── Rutas de Estudiante ────────────────────────────────────────────────
   {
-  path: 'my-learning',
-  canActivate: [roleGuard(['student', 'instructor', 'admin'])],
-  loadChildren: () => import('./features/learning/routes').then(m => m.LEARNING_ROUTES),
-},
+    path: 'my-learning',
+    canActivate: [roleGuard(['student', 'instructor', 'admin'])],
+    loadChildren: () =>
+      import('./features/learning/routes').then(m => m.LEARNING_ROUTES),
+  },
   {
     path: 'cart',
     canActivate: [roleGuard(['student'])],
@@ -89,17 +90,8 @@ export const routes: Routes = [
   // ── Placeholder routes ─────────────────────────────────────────────────
   { path: 'business',  component: PlaceholderComponent },
   { path: 'jobs',      component: PlaceholderComponent },
-<<<<<<< HEAD
-  {
-  path: 'live',
-  loadChildren: () => import('./features/live/routes').then(m => m.LIVE_ROUTES),
-  canActivate: [authGuard]  // opcional si quieres que solo autenticados vean
-  },
-  { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
-=======
   { path: 'live',      component: PlaceholderComponent },
  { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
->>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
   { path: 'my-courses', component: PlaceholderComponent },
   { path: 'notes',     component: PlaceholderComponent },
   { path: 'help',      component: PlaceholderComponent },
