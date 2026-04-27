@@ -66,12 +66,18 @@ export class AuthService implements OnDestroy {
   private logoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    // On app boot: if we have a token, schedule its expiry handler and restore user
+    // On app boot: if we have a token, schedule its expiry handler and restore user.
+    // IMPORTANTE: loadCurrentUser() hace una petición HTTP que pasa por el
+    // authInterceptor, el cual intenta inyectar AuthService. Si llamamos esto
+    // directamente en el constructor (mientras AuthService se está creando),
+    // Angular detecta una dependencia circular (NG0200).
+    // La solución: diferir con setTimeout(0) para que el constructor termine
+    // de ejecutarse primero y Angular marque AuthService como listo.
     const token = this._token();
     if (token && !this.isTokenExpired(token)) {
       this.scheduleTokenExpiry(token);
-      // Rehidratar el usuario desde el backend (el token estaba en localStorage)
-      this.loadCurrentUser().subscribe();
+      // Defer HTTP call until after Angular fully constructs AuthService
+      setTimeout(() => this.loadCurrentUser().subscribe(), 0);
     } else if (token) {
       // Token expirado al arrancar → limpiar
       this.clearSession();
@@ -133,6 +139,26 @@ login(email: string, password: string): Observable<AuthResponse> {
 
   getToken(): string | null {
     return this._token();
+  }
+
+  /**
+   * Persiste un token recibido externamente (login OAuth o respuesta Sanctum
+   * con clave 'token' en lugar de 'accessToken') y actualiza el signal interno.
+   * Llamar esto en lugar de setear localStorage directamente, para que el guard
+   * vea isAuthenticated() = true inmediatamente sin recargar la página.
+   */
+  acceptExternalToken(token: string): void {
+    if (this.isBrowser) localStorage.setItem(TOKEN_KEY, token);
+    this._token.set(token);
+    this.scheduleTokenExpiry(token);
+  }
+
+  /**
+   * Actualiza el signal de usuario actual sin recargar la página.
+   * Útil después de guardar cambios de perfil desde el backend.
+   */
+  acceptExternalUser(user: User): void {
+    this._currentUser.set(user);
   }
 
   // ─── Token refresh (called by auth.interceptor) ──────────────────────────

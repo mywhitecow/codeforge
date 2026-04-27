@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { Component } from '@angular/core';
 import { NgFor, NgIf, NgClass, CommonModule } from '@angular/common';
+=======
+
+import { Component } from '@angular/core';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
 
 interface Plan {
   title: string;
@@ -8,13 +14,17 @@ interface Plan {
   discount?: string;
   benefits: string[];
   isPopular?: boolean;
+<<<<<<< HEAD
   buttonType: 'outlined' | 'solid';
   buttonText: string;
+=======
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
 }
 
 @Component({
   selector: 'app-premium',
   standalone: true,
+<<<<<<< HEAD
   imports: [CommonModule,NgFor, NgIf, NgClass],
   templateUrl: './premium.component.html',
   styleUrl: './premium.component.scss'
@@ -22,6 +32,14 @@ interface Plan {
 export class PremiumComponent {
   selectedPeriod: 'mensual' | 'semestral' | 'anual' = 'mensual';
   
+=======
+  imports: [CommonModule, NgFor, NgIf],
+
+  templateUrl:  './premium.component.html',
+  styleUrl: './premium.component.scss'
+})
+export class PremiumComponent {
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
   plans: Plan[] = [
     {
       title: 'Plan Gratuito',
@@ -30,9 +48,13 @@ export class PremiumComponent {
         'Acceso a contenido básico',
         'Soporte por email',
         'Actualizaciones mensuales'
+<<<<<<< HEAD
       ],
       buttonType: 'outlined',
       buttonText: 'Empezar gratis'
+=======
+      ]
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
     },
     {
       title: 'Pro',
@@ -46,9 +68,13 @@ export class PremiumComponent {
         'Actualizaciones semanales',
         'Recursos descargables'
       ],
+<<<<<<< HEAD
       isPopular: true,
       buttonType: 'solid',
       buttonText: '¡Hazte pro!'
+=======
+      isPopular: true
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
     },
     {
       title: 'Premium',
@@ -60,6 +86,7 @@ export class PremiumComponent {
         'Certificado de completación',
         'Comunidad exclusiva',
         'Garantía de satisfacción'
+<<<<<<< HEAD
       ],
       buttonType: 'solid',
       buttonText: '¡Hazte premium!'
@@ -90,4 +117,9 @@ export class PremiumComponent {
   selectPeriod(period: 'mensual' | 'semestral' | 'anual'): void {
     this.selectedPeriod = period;
   }
+=======
+      ]
+    }
+  ];
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
 }

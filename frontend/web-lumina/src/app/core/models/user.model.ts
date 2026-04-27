@@ -23,15 +23,26 @@ export interface User {
   id:               string;
   name:             string;
   email:            string;
-  role:             UserRole;           // ← NUEVO (requerido)
+  role:             UserRole;
+
+  // ── Perfil ────────────────────────────────────────────────────────────────
   avatarUrl?:       string;
+  bio?:             string;
+  phone?:           string;
+  dateOfBirth?:     string;   // ISO date string
+  isActive?:        boolean;
+  lastLoginAt?:     string;
   createdAt:        string;
+
+  // ── Seguridad (flags, no se exponen los IDs) ──────────────────────────────
+  hasPassword?:     boolean;  // false si se registró solo con OAuth (password=null)
+  hasGoogle?:       boolean;
+  hasGithub?:       boolean;
 
   // ── Estudiante ──────────────────────────────────────────────────────────
   enrolledCourseIds: string[];
-  subscriptionTier?: SubscriptionTier; // solo relevante cuando role === 'student'
+  subscriptionTier?: SubscriptionTier;
 
   // ── Instructor ──────────────────────────────────────────────────────────
-  ownedCourseIds?: string[];           // cursos que el instructor creó
-  bio?:            string;             // perfil público del instructor
+  ownedCourseIds?: string[];
 }

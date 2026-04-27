@@ -117,34 +117,6 @@ type PasswordStrength = 'empty' | 'weak' | 'medium' | 'strong';
               </div>
             </div>
 
-            <!-- Tipo de cuenta -->
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-slate-200 mb-2">Tipo de cuenta</label>
-              <div class="grid grid-cols-3 gap-3">
-                <label class="cursor-pointer relative">
-                  <input type="radio" formControlName="role_id" [value]="2" class="peer sr-only" />
-                  <div class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-slate-400 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition hover:bg-slate-800">
-                    <span class="block text-sm font-medium">Estudiante</span>
-                  </div>
-                </label>
-                <label class="cursor-pointer relative">
-                  <input type="radio" formControlName="role_id" [value]="3" class="peer sr-only" />
-                  <div class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-slate-400 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition hover:bg-slate-800">
-                    <span class="block text-sm font-medium">Instructor</span>
-                  </div>
-                </label>
-                <label class="cursor-pointer relative">
-                  <input type="radio" formControlName="role_id" [value]="1" class="peer sr-only" />
-                  <div class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-slate-400 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:text-blue-400 transition hover:bg-slate-800">
-                    <span class="block text-sm font-medium">Administrador</span>
-                  </div>
-                </label>
-              </div>
-              @if (f['role_id'].invalid && f['role_id'].touched) {
-                <span class="text-xs text-red-400 mt-2 block">Selecciona un tipo de cuenta.</span>
-              }
-            </div>
-
             <!-- Email -->
             <div class="mb-4">
               <label for="reg-email" class="block text-sm font-medium text-slate-200 mb-1.5">Correo electrónico</label>
@@ -303,7 +275,6 @@ export class RegisterComponent {
     {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required]],
-      role_id: [2, [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
@@ -362,10 +333,11 @@ export class RegisterComponent {
     this.loading.set(true);
     this.errorMsg.set('');
 
-    const { firstName, lastName, role_id, email, password } = this.form.getRawValue();
+    const { firstName, lastName, email, password } = this.form.getRawValue();
     const name = `${firstName} ${lastName}`.trim();
 
-    this.auth.register({ name, email: email!, password: password!, role_id: role_id as number }).subscribe({
+    // role_id 2 = Estudiante (rol por defecto para todos los registros públicos)
+    this.auth.register({ name, email: email!, password: password!, role_id: 2 }).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/courses']);

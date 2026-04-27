@@ -89,12 +89,17 @@ export const routes: Routes = [
   // ── Placeholder routes ─────────────────────────────────────────────────
   { path: 'business',  component: PlaceholderComponent },
   { path: 'jobs',      component: PlaceholderComponent },
+<<<<<<< HEAD
   {
   path: 'live',
   loadChildren: () => import('./features/live/routes').then(m => m.LIVE_ROUTES),
   canActivate: [authGuard]  // opcional si quieres que solo autenticados vean
   },
   { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
+=======
+  { path: 'live',      component: PlaceholderComponent },
+ { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
+>>>>>>> ba8a5c7a407731cdb4ed5ff4f844f9360852bd36
   { path: 'my-courses', component: PlaceholderComponent },
   { path: 'notes',     component: PlaceholderComponent },
   { path: 'help',      component: PlaceholderComponent },
@@ -108,7 +113,16 @@ export const routes: Routes = [
       ),
   },
 
-  // ── Redirecciones ──────────────────────────────────────────────────────
-  { path: '', redirectTo: '/courses', pathMatch: 'full' },
+  // ── OAuth callback (backend redirige aquí tras login social) ───────────
+  {
+    path: 'login-success',
+    loadComponent: () =>
+      import('./features/auth/login-success/login-success.component').then(
+        m => m.LoginSuccessComponent
+      ),
+  },
+
+  // ── Home Page ──────────────────────────────────────────────────────────
+  { path: '', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent), pathMatch: 'full' },
   { path: '**', redirectTo: '/courses' },
 ];
