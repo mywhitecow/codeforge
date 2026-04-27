@@ -109,19 +109,15 @@ export class AuthService implements OnDestroy {
     );
   }
 
- // Cambia esto en auth.service.ts para probar:
-login(email: string, password: string): Observable<AuthResponse> {
-  // Asegúrate de enviar los headers aquí si ApiService no lo hace globalmente
-  return this.api.post<AuthResponse>('auth/login', { email, password }, {
-    headers: { 'Accept': 'application/json' }
-  }).pipe(
-    tap(res => this.persistSession(res)),
-    catchError(err => throwError(() => err))
-  );
-}
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.api.post<AuthResponse>('auth/login', { email, password }).pipe(
+      tap(res => this.persistSession(res)),
+      catchError(err => throwError(() => err))
+    );
+  }
 
   register(data: { name: string; email: string; password: string; role_id: number }): Observable<AuthResponse> {
-    return this.api.post<AuthResponse>('auth/register', data, { headers: { Accept: 'application/json' } }).pipe(
+    return this.api.post<AuthResponse>('auth/register', data).pipe(
       tap(res => this.persistSession(res))
     );
   }
