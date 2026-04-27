@@ -31,20 +31,17 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/routes').then(m => m.AUTH_ROUTES),
   },
 
-  // ── Rutas de Contenido (cualquier usuario autenticado) ─────────────────
+  // ── Rutas de Contenido (públicas) ──────────────────────────────────────
   {
     path: 'courses',
-   canActivate: [authGuard],
     loadChildren: () => import('./features/courses/routes').then(m => m.COURSE_ROUTES),
   },
   {
     path: 'paths',
-    canActivate: [authGuard],
     loadChildren: () => import('./features/paths/routes').then(m => m.PATHS_ROUTES),
   },
   {
     path: 'schools',
-    canActivate: [authGuard],
     loadChildren: () => import('./features/schools/routes').then(m => m.SCHOOLS_ROUTES),
   },
 

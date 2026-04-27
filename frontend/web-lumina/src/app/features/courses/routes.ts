@@ -1,9 +1,10 @@
 // features/courses/routes.ts
 import { Routes } from '@angular/router';
-import { CourseListComponent } from './course-list/course-list.component';
+import { CourseCatalogComponent } from './course-catalog/course-catalog.component';
 import { CourseDetailComponent } from './course-detail/course-detail.component';
 
 export const COURSE_ROUTES: Routes = [
-  { path: '', component: CourseListComponent },
-  { path: ':id', component: CourseDetailComponent }, // ← Descomentar
+  { path: '', redirectTo: 'catalogo', pathMatch: 'full' },
+  { path: 'catalogo', component: CourseCatalogComponent },
+  { path: ':id', component: CourseDetailComponent },
 ];

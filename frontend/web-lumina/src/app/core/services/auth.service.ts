@@ -270,9 +270,9 @@ export class AuthService implements OnDestroy {
 
     this.logoutTimer = setTimeout(() => {
       this.clearSession();
-      this.router.navigate(['/auth/login']);
+      // No redirigir automáticamente para permitir que el usuario siga como invitado
       // ToastService is injected lazily here to avoid circular deps
-      inject(ToastService)?.warning('Tu sesión expiró. Inicia sesión de nuevo.');
+      inject(ToastService)?.warning('Tu sesión expiró. Puedes seguir navegando como invitado.');
     }, msUntilExpiry);
   }
 
@@ -280,7 +280,7 @@ export class AuthService implements OnDestroy {
     this.isRefreshing = false;
     this.refreshReady$.next(true);
     this.clearSession();
-    this.router.navigate(['/auth/login']);
+    // No redirigir automáticamente al login
   }
 
   /**
