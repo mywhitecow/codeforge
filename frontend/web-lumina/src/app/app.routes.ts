@@ -91,7 +91,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/codeforce-careers/routes').then(m => m.CAREERS_ROUTES),
   },
   { path: 'jobs', redirectTo: 'codeforce-careers', pathMatch: 'full' },
-  { path: 'live',      component: PlaceholderComponent },
+  {
+    path: 'en-vivo',
+    loadChildren: () => import('./features/live/routes').then(m => m.LIVE_ROUTES),
+  },
+  { path: 'live', redirectTo: 'en-vivo', pathMatch: 'full' },
  { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
   { path: 'my-courses', component: PlaceholderComponent },
   { path: 'notes',     component: PlaceholderComponent },

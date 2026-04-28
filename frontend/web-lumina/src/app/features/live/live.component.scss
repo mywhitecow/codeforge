@@ -1,0 +1,15 @@
+/* features/live/live.component.scss */
+
+/* Countdown units */
+.countdown-unit {
+  @apply flex flex-col items-center;
+}
+
+.countdown-number {
+  @apply text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tabular-nums;
+  text-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
+}
+
+.countdown-label {
+  @apply text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 mt-1;
+}

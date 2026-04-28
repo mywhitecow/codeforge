@@ -1,0 +1,273 @@
+<!-- features/live/live.component.html -->
+
+<!-- Loading skeleton -->
+@if (isLoading()) {
+  <div class="min-h-screen bg-codeforge-dark flex items-center justify-center">
+    <div class="w-8 h-8 border-2 border-codeforge-primary/30 border-t-codeforge-primary rounded-full animate-spin"></div>
+  </div>
+}
+
+@if (event(); as ev) {
+  <div class="min-h-screen bg-codeforge-dark">
+
+    <!-- ═══════════════ HERO / COUNTDOWN SECTION ═══════════════ -->
+    <section class="relative overflow-hidden border-b border-white/5">
+      <!-- Background effects -->
+      <div class="absolute inset-0 bg-gradient-to-br from-codeforge-primary/10 via-violet-500/5 to-transparent"></div>
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-codeforge-primary/8 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-violet-500/8 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-codeforge-primary/3 rounded-full blur-[120px]"></div>
+
+      <div class="relative max-w-5xl mx-auto px-4 py-16 sm:py-24 text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-bold uppercase tracking-widest rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/20 animate-pulse">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+          NUEVA VERSIÓN
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-3 leading-tight">
+          {{ ev.version }}
+        </h1>
+
+        <!-- Date -->
+        <p class="text-base sm:text-lg text-slate-400 mb-10">
+          {{ formatEventDate(ev.date) }}
+        </p>
+
+        <!-- Countdown -->
+        @if (!countdown().isExpired) {
+          <div class="flex items-center justify-center gap-3 sm:gap-5 mb-8">
+            <!-- Days -->
+            <div class="countdown-unit">
+              <span class="countdown-number">{{ pad(countdown().days) }}</span>
+              <span class="countdown-label">Días</span>
+            </div>
+            <span class="text-2xl text-slate-600 font-light mt-[-16px]">|</span>
+            <!-- Hours -->
+            <div class="countdown-unit">
+              <span class="countdown-number">{{ pad(countdown().hours) }}</span>
+              <span class="countdown-label">Horas</span>
+            </div>
+            <span class="text-2xl text-slate-600 font-light mt-[-16px]">|</span>
+            <!-- Minutes -->
+            <div class="countdown-unit">
+              <span class="countdown-number">{{ pad(countdown().minutes) }}</span>
+              <span class="countdown-label">Minutos</span>
+            </div>
+            <span class="text-2xl text-slate-600 font-light mt-[-16px]">|</span>
+            <!-- Seconds -->
+            <div class="countdown-unit">
+              <span class="countdown-number">{{ pad(countdown().seconds) }}</span>
+              <span class="countdown-label">Segundos</span>
+            </div>
+          </div>
+        } @else {
+          <div class="inline-flex items-center gap-2 px-6 py-3 mb-8 text-sm font-semibold rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Disponible bajo demanda
+          </div>
+        }
+
+        <!-- Remind me button -->
+        <div>
+          <button
+            (click)="toggleReminder()"
+            [class]="hasReminder()
+              ? 'inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-xl bg-codeforge-primary text-codeforge-dark hover:bg-codeforge-primary-h transition-all shadow-lg shadow-codeforge-primary/25'
+              : 'inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-xl bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white transition-all'"
+          >
+            @if (hasReminder()) {
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5.25 12a6.75 6.75 0 0113.5 0v2.917c0 .69.56 1.25 1.25 1.25.69 0 1.25.56 1.25 1.25v.833a.75.75 0 01-.75.75H3.5a.75.75 0 01-.75-.75v-.833c0-.69.56-1.25 1.25-1.25.69 0 1.25-.56 1.25-1.25V12zM9 19.25a3 3 0 006 0"/></svg>
+              Recordatorio activado
+            } @else {
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              Recuérdame
+            }
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ EVENT INFO + VIDEO SECTION ═══════════════ -->
+    <section class="max-w-5xl mx-auto px-4 py-12">
+
+      <!-- Event info card -->
+      <div class="bg-codeforge-dark-light/70 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden mb-8">
+        <!-- Speaker header -->
+        <div class="flex items-center gap-4 p-5 border-b border-white/5">
+          <img [src]="ev.speaker.avatarUrl" [alt]="ev.speaker.name"
+               class="w-12 h-12 rounded-full ring-2 ring-codeforge-primary/30" />
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-bold text-white">{{ ev.speaker.name }}</p>
+            <p class="text-sm text-slate-400">{{ ev.speaker.title }}</p>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-500">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            {{ ev.attendees | number }} registrados
+          </div>
+        </div>
+
+        <!-- Event content -->
+        <div class="p-5">
+          <h2 class="text-xl sm:text-2xl font-bold text-white mb-3">
+            En vivo: {{ ev.title }}
+          </h2>
+          <p class="text-sm sm:text-base text-slate-400 leading-relaxed mb-4">
+            {{ ev.description }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            @for (tag of ev.tags; track tag) {
+              <span class="px-3 py-1 text-xs font-medium rounded-lg bg-codeforge-primary/10 text-codeforge-primary border border-codeforge-primary/20">
+                {{ tag }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ VIDEO OR AUTH GATE ═══════════════ -->
+      @if (auth.isAuthenticated()) {
+        <!-- Authenticated: show video player -->
+        <div class="bg-codeforge-dark-light/70 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden">
+          <div class="aspect-video w-full">
+            <iframe
+              [src]="ev.videoUrl | safeUrl"
+              class="w-full h-full"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              title="Live Stream"
+            ></iframe>
+          </div>
+        </div>
+      } @else {
+        <!-- Not authenticated: show login gate -->
+        <div class="bg-codeforge-dark-light/70 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden">
+          <!-- Blurred placeholder -->
+          <div class="relative aspect-video w-full bg-gradient-to-br from-codeforge-dark to-slate-900 flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-codeforge-primary/5 via-violet-500/5 to-transparent"></div>
+            <div class="absolute inset-0 backdrop-blur-sm bg-black/40"></div>
+            <div class="relative text-center px-4">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <svg class="w-10 h-10 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              </div>
+              <p class="text-lg font-semibold text-white mb-1">Contenido exclusivo</p>
+              <p class="text-sm text-slate-400">Inicia sesión para ver el live</p>
+            </div>
+          </div>
+
+          <!-- Login form -->
+          <div class="p-6 sm:p-8 border-t border-white/5">
+            <div class="max-w-sm mx-auto">
+              <h3 class="text-lg font-bold text-white text-center mb-1">Inicia sesión para ver el live</h3>
+              <p class="text-sm text-slate-400 text-center mb-6">Accede a transmisiones en vivo y contenido exclusivo</p>
+
+              <!-- Error -->
+              @if (loginError()) {
+                <div class="mb-5 px-4 py-3 bg-red-900/30 border border-red-500/50 rounded-xl text-red-300 text-sm flex items-center gap-2.5">
+                  <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ loginError() }}
+                </div>
+              }
+
+              <!-- Social buttons -->
+              <div class="grid grid-cols-2 gap-3 mb-5">
+                <button
+                  type="button"
+                  (click)="loginWithSocial('google')"
+                  class="flex items-center justify-center gap-2 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-200 hover:bg-white/10 transition-all"
+                >
+                  <svg width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                  </svg>
+                  Google
+                </button>
+                <button
+                  type="button"
+                  (click)="loginWithSocial('github')"
+                  class="flex items-center justify-center gap-2 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-slate-200 hover:bg-white/10 transition-all"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+                  </svg>
+                  GitHub
+                </button>
+              </div>
+
+              <!-- Divider -->
+              <div class="flex items-center gap-3 mb-5">
+                <div class="flex-1 h-px bg-white/10"></div>
+                <span class="text-xs text-slate-500">o continúa con</span>
+                <div class="flex-1 h-px bg-white/10"></div>
+              </div>
+
+              <!-- Email/Password form -->
+              <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" novalidate>
+                <div class="mb-3">
+                  <label for="live-email" class="block text-xs font-medium text-slate-400 mb-1.5">Correo electrónico</label>
+                  <input
+                    id="live-email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="tu@correo.com"
+                    class="w-full px-4 py-2.5 bg-codeforge-dark border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-codeforge-primary/50 focus:border-codeforge-primary/50 transition-all"
+                  />
+                </div>
+                <div class="mb-2">
+                  <label for="live-password" class="block text-xs font-medium text-slate-400 mb-1.5">Contraseña</label>
+                  <input
+                    id="live-password"
+                    type="password"
+                    formControlName="password"
+                    placeholder="••••••••"
+                    class="w-full px-4 py-2.5 bg-codeforge-dark border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-codeforge-primary/50 focus:border-codeforge-primary/50 transition-all"
+                  />
+                </div>
+
+                <div class="text-right mb-4">
+                  <a routerLink="/auth/login" class="text-xs text-codeforge-primary hover:underline">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full py-3 text-sm font-bold rounded-xl bg-gradient-to-r from-codeforge-primary to-sky-400 text-codeforge-dark hover:shadow-lg hover:shadow-codeforge-primary/25 transition-all disabled:opacity-60"
+                  [disabled]="loginLoading()"
+                >
+                  {{ loginLoading() ? 'Ingresando...' : 'Iniciar sesión' }}
+                </button>
+              </form>
+
+              <p class="text-center text-sm text-slate-500 mt-5">
+                ¿No tienes cuenta?
+                <a routerLink="/auth/register" class="text-codeforge-primary font-semibold hover:underline">Regístrate gratis</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ═══════════════ EVENT DETAILS SECTION ═══════════════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+        <div class="bg-codeforge-dark-light/50 border border-white/5 rounded-xl p-5 text-center">
+          <svg class="w-6 h-6 mx-auto mb-2 text-codeforge-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Fecha</p>
+          <p class="text-sm font-semibold text-white">{{ ev.date | date:'d MMMM, yyyy' }}</p>
+        </div>
+        <div class="bg-codeforge-dark-light/50 border border-white/5 rounded-xl p-5 text-center">
+          <svg class="w-6 h-6 mx-auto mb-2 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Hora</p>
+          <p class="text-sm font-semibold text-white">{{ ev.date | date:'h:mm a' }} (hora local)</p>
+        </div>
+        <div class="bg-codeforge-dark-light/50 border border-white/5 rounded-xl p-5 text-center">
+          <svg class="w-6 h-6 mx-auto mb-2 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Duración</p>
+          <p class="text-sm font-semibold text-white">~90 minutos + Q&A</p>
+        </div>
+      </div>
+    </section>
+  </div>
+}
