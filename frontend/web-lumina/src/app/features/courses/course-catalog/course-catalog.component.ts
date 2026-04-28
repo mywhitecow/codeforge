@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CourseService } from '../services/course.service';
 import { Course } from '../../../core/models/course.model';
 import { CourseCardComponent } from '../components/course-card/course-card.component';
 import { CourseDetailModalComponent } from '../components/course-detail-modal/course-detail-modal.component';
+import { CourseGridComponent } from '../components/course-grid/course-grid.component';
 import { register } from 'swiper/element/bundle';
 
 register();
@@ -11,7 +12,7 @@ register();
 @Component({
   selector: 'app-course-catalog',
   standalone: true,
-  imports: [CommonModule, CourseCardComponent, CourseDetailModalComponent],
+  imports: [CommonModule, CourseCardComponent, CourseDetailModalComponent, CourseGridComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -54,7 +55,7 @@ register();
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-white flex items-center">
               <span class="w-2 h-8 bg-sky-500 rounded-full mr-3"></span>
-              Cursos Destacados
+              Cursos Destacados 
             </h2>
           </div>
 
@@ -71,6 +72,7 @@ register();
               <div class="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-slate-900 to-transparent z-10 pointer-events-none md:w-12"></div>
               
               <swiper-container
+                #swiper
                 slides-per-view="auto"
                 space-between="24"
                 loop="true"
@@ -79,15 +81,17 @@ register();
                 autoplay-pause-on-mouse-enter="true"
                 class="w-full pb-8 pt-2"
               >
-                @for (course of courses(); track course.id) {
+                @for (course of courses(); track course.id; let i = $index) {
                   <swiper-slide style="width: auto;">
-                    <app-course-card [course]="course" (showDetails)="openCourseModal($event)" />
+                    <app-course-card [course]="course" [isFirst]="i === 0" (showDetails)="openCourseModal($event)" />
                   </swiper-slide>
                 }
               </swiper-container>
             </div>
           }
         </div>
+
+        <app-course-grid></app-course-grid>
       }
     </div>
 
@@ -115,26 +119,27 @@ register();
     }
   `]
 })
-export class CourseCatalogComponent implements OnInit {
+export class CourseCatalogComponent implements OnInit, OnDestroy {
   private readonly courseService = inject(CourseService);
 
   courses = signal<Course[]>([]);
   loading = signal(true);
   error = signal(false);
-  
+
   // Modal state
   isModalOpen = signal(false);
   selectedCourse = signal<Course | null>(null);
 
-  readonly levels = [
-    { value: '',             label: 'Todos'          },
-    { value: 'beginner',     label: 'Principiante'   },
-    { value: 'intermediate', label: 'Intermedio'     },
-    { value: 'advanced',     label: 'Avanzado'       },
-  ];
+  @ViewChild('swiper') swiperRef?: ElementRef;
 
   ngOnInit(): void {
     this.loadCourses();
+  }
+
+  ngOnDestroy(): void {
+    if (this.swiperRef?.nativeElement?.swiper) {
+      this.swiperRef.nativeElement.swiper.destroy();
+    }
   }
 
   loadCourses(): void {

@@ -19,7 +19,7 @@ import { Course } from '../../../../core/models/course.model';
                width="320"
                height="180"
                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-               loading="lazy" />
+               [priority]="isFirst" />
         } @else {
           <div class="flex items-center justify-center h-full">
             <svg class="w-10 h-10 text-sky-500 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,6 +77,7 @@ import { Course } from '../../../../core/models/course.model';
 })
 export class CourseCardComponent {
   @Input({ required: true }) course!: Course;
+  @Input() isFirst = false;
   @Output() showDetails = new EventEmitter<Course>();
 
   readonly levelLabels: Record<string, string> = {
