@@ -338,9 +338,19 @@ export class RegisterComponent {
 
     // role_id 2 = Estudiante (rol por defecto para todos los registros públicos)
     this.auth.register({ name, email: email!, password: password!, role_id: 2 }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.router.navigate(['/courses']);
+      next: (res: any) => {
+        // Enforce full mapped profile fetch
+        this.auth.acceptExternalToken(res.token || res.accessToken);
+        this.auth.loadCurrentUser().subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.router.navigate(['/courses']);
+          },
+          error: () => {
+            this.loading.set(false);
+            this.router.navigate(['/courses']);
+          }
+        });
       },
       error: (err: { status: number }) => {
         this.loading.set(false);

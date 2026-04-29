@@ -29,6 +29,10 @@ class Course extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function instructor() {
+        return $this->belongsTo(User::class, 'instructor_id');
+    }
+
     public function minSubscriptionPlan() {
         return $this->belongsTo(SubscriptionPlan::class, 'min_subscription_id');
     }   

@@ -5,6 +5,7 @@ import {
   signal,
   inject,
   PLATFORM_ID,
+  NgZone,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -81,6 +82,7 @@ interface TimeLeft {
 })
 export class TopBannerComponent implements OnInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly ngZone = inject(NgZone);
   readonly isBrowser = isPlatformBrowser(this.platformId);
 
   isVisible = signal(true);
@@ -95,7 +97,13 @@ export class TopBannerComponent implements OnInit, OnDestroy {
     this.targetDate = new Date();
     this.targetDate.setDate(this.targetDate.getDate() + 7);
     this.updateTimer();
-    this.intervalId = setInterval(() => this.updateTimer(), 1000);
+    
+    // Run timer outside of Angular's zone to not block application stability during SSR
+    this.ngZone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.ngZone.run(() => this.updateTimer());
+      }, 1000);
+    });
   }
 
   ngOnDestroy(): void {

@@ -48,19 +48,11 @@ export interface GridCourse {
                 </p>
               </div>
 
-              <!-- Prices -->
-              <div class="mt-auto">
-                <div class="flex items-end gap-2 mb-1">
-                  <span class="text-2xl font-bold text-white">{{ course.currentPrice }} {{ course.currency }}</span>
-                  @if (course.originalPrice) {
-                    <span class="text-slate-500 line-through text-sm mb-1">{{ course.originalPrice }} {{ course.currency }}</span>
-                  }
-                </div>
-                @if (course.discountPercent) {
-                  <span class="inline-block bg-sky-500/20 text-sky-400 text-xs font-bold px-2 py-1 rounded">
-                    {{ course.discountPercent }}% Dcto
-                  </span>
-                }
+              <!-- Footer (reemplazo de precios) -->
+              <div class="mt-auto pt-4">
+                <span class="inline-block bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">
+                  Incluido en Premium
+                </span>
               </div>
             </div>
 
@@ -77,17 +69,9 @@ export interface GridCourse {
                 </p>
               }
 
-              <!-- Precios en Popup -->
+              <!-- Omitimos precio en popup -->
               <div class="mb-4">
-                <div class="flex items-end gap-2 mb-1">
-                  <span class="text-xl font-bold text-white">{{ course.currentPrice }} {{ course.currency }}</span>
-                  @if (course.originalPrice) {
-                    <span class="text-slate-500 line-through text-xs mb-1">{{ course.originalPrice }} {{ course.currency }}</span>
-                  }
-                </div>
-                @if (course.discountPercent) {
-                  <span class="text-sky-400 text-xs font-bold">{{ course.discountPercent }}% Dcto</span>
-                }
+                <span class="text-emerald-400 text-xs font-bold">Disponible con Premium</span>
               </div>
 
               <button class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm">

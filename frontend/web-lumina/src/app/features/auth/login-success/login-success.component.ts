@@ -69,10 +69,17 @@ export class LoginSuccessComponent implements OnInit {
       return;
     }
 
-    // 1. Persiste el token en localStorage Y actualiza el signal de AuthService.
+    // 1. Persiste el token en sessionStorage Y actualiza el signal de AuthService.
     this.auth.acceptExternalToken(token);
 
-    // 2. Navegar a courses en el cliente
-    this.router.navigate(['/courses']);
+    // 2. Cargar el perfil del usuario antes de navegar
+    this.auth.loadCurrentUser().subscribe({
+      next: () => {
+        this.router.navigate(['/courses']);
+      },
+      error: () => {
+        this.error.set('No se pudo cargar el perfil del usuario. Intenta de nuevo.');
+      }
+    });
   }
 }

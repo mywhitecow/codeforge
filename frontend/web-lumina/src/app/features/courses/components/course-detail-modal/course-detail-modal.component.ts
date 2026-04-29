@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { Router } from '@angular/router';
 import { Course } from '../../../../core/models/course.model';
 
 @Component({
@@ -73,24 +74,14 @@ import { Course } from '../../../../core/models/course.model';
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-between mt-8 pt-4 border-t border-slate-700">
-              <div>
-                <p class="text-xs text-slate-400">Precio del curso</p>
-                <p class="text-2xl font-bold text-white">
-                  @if (course.price === 0) {
-                    <span class="text-green-500">Gratis</span>
-                  } @else {
-                    $ {{ course.price.toFixed(2) }}
-                  }
-                </p>
-              </div>
+            <div class="flex flex-row items-center justify-end mt-8 pt-4 border-t border-slate-700">
               <div class="flex gap-3">
                 <button class="px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors font-medium text-sm"
                         (click)="closeModal()">
                   Cerrar
                 </button>
                 <button class="px-6 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-white transition-colors font-medium text-sm shadow-lg shadow-sky-500/30"
-                        (click)="closeModal()">
+                        (click)="enroll()">
                   Inscribirse
                 </button>
               </div>
@@ -105,6 +96,8 @@ export class CourseDetailModalComponent {
   @Input() course: Course | null = null;
   @Input() isOpen = false;
   @Output() close = new EventEmitter<void>();
+
+  private readonly router = inject(Router);
 
   readonly levelLabels: Record<string, string> = {
     beginner: 'Principiante',
@@ -121,5 +114,10 @@ export class CourseDetailModalComponent {
 
   closeModal() {
     this.close.emit();
+  }
+
+  enroll() {
+    this.closeModal();
+    this.router.navigate(['/premium']);
   }
 }

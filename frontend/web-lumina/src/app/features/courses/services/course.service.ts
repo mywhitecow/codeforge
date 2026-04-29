@@ -134,6 +134,16 @@ export class CourseService {
 
   getAll(filters?: { level?: string; search?: string }): Observable<Course[]> {
     return this.api.get<Course[]>('courses', filters as Record<string, string>).pipe(
+      map(data => {
+        if (!data || data.length === 0) {
+          let result = MOCK_COURSES;
+          if (filters?.level) {
+            result = result.filter(c => c.level === filters.level);
+          }
+          return result;
+        }
+        return data;
+      }),
       catchError(() => {
         let result = MOCK_COURSES;
         if (filters?.level) {

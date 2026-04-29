@@ -2,9 +2,9 @@
 import {
   Component, OnInit, OnDestroy, signal,
   ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild,
-  inject,
+  inject, PLATFORM_ID
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { register } from 'swiper/element/bundle';
 import { PathService } from '../services/path.service';
@@ -95,7 +95,7 @@ register();
               slides-per-view="auto"
               space-between="24"
               loop="true"
-              autoplay-delay="3200"
+              [attr.autoplay-delay]="isBrowser ? '3200' : null"
               autoplay-disable-on-interaction="false"
               autoplay-pause-on-mouse-enter="true"
               grab-cursor="true"
@@ -312,6 +312,8 @@ register();
   `],
 })
 export class PathListComponent implements OnInit, OnDestroy {
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly pathService = inject(PathService);
 
   paths  = signal<LearningPath[]>([]);

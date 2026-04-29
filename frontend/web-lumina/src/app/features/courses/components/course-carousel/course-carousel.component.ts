@@ -128,12 +128,8 @@ import { Course } from '../../../../core/models/course.model';
 
                     <!-- Footer: precio y duración -->
                     <div class="flex items-center justify-between mt-3">
-                      <span class="font-bold text-slate-100">
-                        @if (course.price === 0) {
-                          <span class="text-green-600">Gratis</span>
-                        } @else {
-                          $ {{ course.price.toFixed(2) }}
-                        }
+                      <span class="font-bold text-emerald-400 text-xs">
+                        Disponible con Premium
                       </span>
                       <span class="text-xs text-slate-500 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

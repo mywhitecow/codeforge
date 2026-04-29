@@ -19,6 +19,11 @@ Route::get('/test', function () {
     return response()->json(['message' => 'Conexión exitosa']);
 });
 
+// Mock para evitar errores 404 del LiveService del frontend
+Route::get('/live/status', function () {
+    return response()->json(['isLive' => false]);
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);

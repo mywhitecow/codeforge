@@ -20,8 +20,13 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'cart',           renderMode: RenderMode.Client },
   { path: 'profile',        renderMode: RenderMode.Client },
   { path: 'my-learning',    renderMode: RenderMode.Client },
+  { path: 'my-learning/course/:id', renderMode: RenderMode.Client },
+  { path: 'my-learning/course/:id/quiz', renderMode: RenderMode.Client },
   { path: 'auth/login',     renderMode: RenderMode.Client },
   { path: 'auth/register',  renderMode: RenderMode.Client },
+
+  // Rutas dinámicas públicas → SSR on-demand
+  { path: 'paths/:id',      renderMode: RenderMode.Server },
 
   // Todo lo demás → prerender en build time
   {

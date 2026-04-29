@@ -162,11 +162,19 @@ export class LoginComponent {
       next: (res: any) => {
         // acceptExternalToken actualiza el signal _token interno de AuthService
         // para que el guard vea isAuthenticated()=true de inmediato.
-        // El backend Sanctum devuelve { token: '...' }, no { accessToken: '...' }.
-        this.auth.acceptExternalToken(res.token);
+        this.auth.acceptExternalToken(res.token || res.accessToken);
 
-        this.loading.set(false);
-        this.router.navigate(['/courses']);
+        // Forzar la carga del usuario mapeado (desde /api/auth/me)
+        this.auth.loadCurrentUser().subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.router.navigate(['/courses']);
+          },
+          error: () => {
+            this.loading.set(false);
+            this.errorMsg.set('No se pudo cargar el perfil del usuario.');
+          }
+        });
       },
       error: (err) => {
         this.loading.set(false);

@@ -8,11 +8,36 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
+    // Función auxiliar para mapear el curso al formato del frontend
+    private function mapCourse($course)
+    {
+        return [
+            'id' => (string) $course->id,
+            'title' => $course->title,
+            'description' => $course->description,
+            'durationHours' => $course->duration,
+            'level' => $course->level,
+            'price' => (float) $course->price,
+            'category_id' => $course->category_id,
+            'instructor' => $course->instructor ? $course->instructor->name : 'Instructor',
+            'thumbnailUrl' => $course->thumbnail_url,
+            'isActive' => (bool) $course->is_active,
+            'category' => $course->category,
+            // Mock de sistema de reseñas (Sprint 2)
+            'rating' => 4.5,
+            'totalReviews' => 128,
+            'tags' => ['Desarrollo', 'Tecnología'] // Mock
+        ];
+    }
+
     // 1. Listar todos los cursos
     public function index()
     {
-        $courses = Course::with('category')->get();
-        return response()->json($courses, 200);
+        $courses = Course::with(['category', 'instructor'])->get();
+        $mappedCourses = $courses->map(function ($course) {
+            return $this->mapCourse($course);
+        });
+        return response()->json($mappedCourses, 200);
     }
 
     // 2. Crear un curso nuevo
@@ -40,23 +65,24 @@ class CourseController extends Controller
 
         // Si todo es válido, guardamos en la base de datos
         $course = Course::create($data);
+        $course->load(['category', 'instructor']);
 
         return response()->json([
             'message' => 'Curso creado exitosamente',
-            'course' => $course
+            'course' => $this->mapCourse($course)
         ], 201);
     }
 
     // 3. Ver un solo curso en específico (Por si el frontend necesita la vista de detalle)
     public function show($id)
     {
-        $course = Course::with('category')->find($id);
+        $course = Course::with(['category', 'instructor'])->find($id);
 
         if (!$course) {
             return response()->json(['message' => 'Curso no encontrado'], 404);
         }
 
-        return response()->json($course, 200);
+        return response()->json($this->mapCourse($course), 200);
     }
 
     // 4. Actualizar un curso existente
@@ -90,10 +116,11 @@ class CourseController extends Controller
 
         // Actualizamos los datos
         $course->update($request->all());
+        $course->load(['category', 'instructor']);
 
         return response()->json([
             'message' => 'Curso actualizado exitosamente',
-            'course' => $course
+            'course' => $this->mapCourse($course)
         ], 200);
     }
 

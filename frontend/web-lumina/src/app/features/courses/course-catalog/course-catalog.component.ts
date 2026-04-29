@@ -1,5 +1,5 @@
-import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, OnDestroy, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { CourseService } from '../services/course.service';
@@ -95,7 +95,7 @@ register();
                 slides-per-view="auto"
                 space-between="24"
                 loop="true"
-                autoplay-delay="3000"
+                [attr.autoplay-delay]="isBrowser ? '3000' : null"
                 autoplay-disable-on-interaction="false"
                 autoplay-pause-on-mouse-enter="true"
                 grab-cursor="true"
@@ -166,6 +166,8 @@ register();
   `]
 })
 export class CourseCatalogComponent implements OnInit, OnDestroy {
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly isBrowser = isPlatformBrowser(this.platformId);
   private readonly courseService = inject(CourseService);
   private readonly router = inject(Router);
   private routerSub?: Subscription;
