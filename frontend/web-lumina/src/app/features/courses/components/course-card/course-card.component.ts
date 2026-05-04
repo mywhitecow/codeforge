@@ -128,7 +128,7 @@ export class CourseCardComponent {
 
   @Input({ required: true }) course!: Course;
   @Input() isFirst = false;
-  @Input() showPrice = true;
+  @Input() showPrice = false;
   @Output() showDetails = new EventEmitter<Course>();
 
   readonly levelLabels: Record<string, string> = {

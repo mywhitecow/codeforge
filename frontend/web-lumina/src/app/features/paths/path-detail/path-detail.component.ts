@@ -234,7 +234,7 @@ export class PathDetailComponent implements OnInit {
   orderedCourses() {
     const path = this.path();
     if (!path) return [];
-    const map = new Map(this.courses().map(c => [c.id, c]));
+    const map = new Map(this.courses().map(c => [String(c.id), c]));
     return path.courseIds
       .map(id => map.get(id))
       .filter((c): c is Course => !!c);
