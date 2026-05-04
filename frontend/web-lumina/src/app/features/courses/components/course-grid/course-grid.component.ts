@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 export interface GridCourse {
   id: string;
@@ -56,10 +57,20 @@ export interface GridCourse {
                   <span class="inline-block bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded mb-3">
                     Incluido en Premium
                   </span>
-                  <a [routerLink]="['/courses', course.id]"
-                     class="w-full bg-slate-700 hover:bg-sky-500 text-slate-200 hover:text-white font-semibold py-2.5 rounded-lg transition-all duration-200 text-sm text-center flex items-center justify-center gap-1">
-                    Más información →
-                  </a>
+                  @if (hasAccess(course.id)) {
+                    <a [routerLink]="['/my-learning/course', course.id]"
+                       class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg transition-all duration-200 text-sm text-center flex items-center justify-center gap-2">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                      </svg>
+                      Iniciar curso
+                    </a>
+                  } @else {
+                    <a [routerLink]="['/courses', course.id]"
+                       class="w-full bg-slate-700 hover:bg-sky-500 text-slate-200 hover:text-white font-semibold py-2.5 rounded-lg transition-all duration-200 text-sm text-center flex items-center justify-center gap-1">
+                      Más información →
+                    </a>
+                  }
                 </div>
               </div>
             </div>
@@ -81,10 +92,20 @@ export interface GridCourse {
                 <span class="text-emerald-400 text-xs font-bold">Disponible con Premium</span>
               </div>
 
-              <a [routerLink]="['/courses', course.id]"
-                 class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm text-center block">
-                Más información
-              </a>
+              @if (hasAccess(course.id)) {
+                <a [routerLink]="['/my-learning/course', course.id]"
+                   class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg transition-all duration-200 text-sm text-center flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                  </svg>
+                  Iniciar curso
+                </a>
+              } @else {
+                <a [routerLink]="['/courses', course.id]"
+                   class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm text-center block">
+                  Más información
+                </a>
+              }
             </div>
 
           </div>
@@ -189,5 +210,21 @@ export class CourseGridComponent {
       thumbnailUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80'
     }
   ];
+
+  private auth = inject(AuthService);
+
+  hasAccess(courseId: string): boolean {
+    const user = this.auth.currentUser();
+    if (!user) return false;
+    
+    if (user.role === 'admin' || user.role === 'instructor') return true;
+    
+    const hasPremium = user.plan_id && (!user.plan_expires_at || new Date(user.plan_expires_at) > new Date());
+    if (hasPremium) return true;
+    
+    if (user.enrolledCourseIds && user.enrolledCourseIds.includes(courseId)) return true;
+    
+    return false;
+  }
 }
 

@@ -17,7 +17,7 @@ export const MOCK_SCHOOLS: School[] = [
     icon: '🌐',
     featured: true,
     category: 'programming',
-    courseIds: ['1', '2', '3'],
+    courseIds: ['1', '2', '3', '11', '14', '15', '18'],
     studentCount: 12400,
     instructorCount: 8,
     color: '#38bdf8',
@@ -29,7 +29,7 @@ export const MOCK_SCHOOLS: School[] = [
     icon: '🎨',
     featured: true,
     category: 'design',
-    courseIds: ['5'],
+    courseIds: ['5', '10', '12', '16'],
     studentCount: 5800,
     instructorCount: 4,
     color: '#a78bfa',
@@ -53,7 +53,7 @@ export const MOCK_SCHOOLS: School[] = [
     icon: '☁️',
     featured: true,
     category: 'devops',
-    courseIds: ['6'],
+    courseIds: ['6', '13', '17'],
     studentCount: 4300,
     instructorCount: 3,
     color: '#fb923c',
@@ -65,7 +65,7 @@ export const MOCK_SCHOOLS: School[] = [
     icon: '⚡',
     featured: false,
     category: 'programming',
-    courseIds: ['7'],
+    courseIds: ['7', '9', '19'],
     studentCount: 7600,
     instructorCount: 5,
     color: '#facc15',
@@ -155,7 +155,7 @@ export class SchoolService {
     }
     const ids = school.courseIds;
     return this.courseService.getAll().pipe(
-      map(courses => courses.filter(c => ids.includes(c.id)))
+      map(courses => courses.filter(c => ids.includes(String(c.id))))
     );
   }
 
