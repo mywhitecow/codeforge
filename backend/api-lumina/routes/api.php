@@ -74,3 +74,5 @@ Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderC
 use App\Http\Controllers\CheckoutController;
 Route::middleware('auth:sanctum')->post('/checkout/session/{course_id}', [CheckoutController::class, 'createSession']);
 Route::middleware('auth:sanctum')->post('/checkout/subscription', [CheckoutController::class, 'createSubscriptionSession']);
+
+Route::middleware('auth:sanctum')->post('/checkout/verify-subscription', [App\Http\Controllers\CheckoutController::class, 'verifySubscriptionSession']);

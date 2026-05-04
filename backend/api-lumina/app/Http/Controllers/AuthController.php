@@ -164,6 +164,8 @@ class AuthController extends Controller
             'hasGoogle'        => !is_null($user->google_id),
             'hasGithub'        => !is_null($user->github_id),
             'enrolledCourseIds'=> $user->registrations->pluck('course_id')->map(fn($id) => (string)$id)->values()->all(),
+            'plan_id'          => $user->plan_id,
+            'plan_expires_at'  => $user->plan_expires_at,
         ]);
     }
 

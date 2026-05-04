@@ -134,8 +134,8 @@ const LEVEL_BAR: Record<string, number> = {
           <!-- Course cards — ordered list -->
           <div class="flex flex-col gap-4">
             @for (course of orderedCourses(); track course.id; let i = $index) {
-              <div class="course-row group flex items-start gap-4 bg-slate-800/60 rounded-2xl border border-slate-700/80
-                          p-5 hover:border-sky-500/30 transition-all duration-300 animate-fade-in-up"
+              <a [routerLink]="['/courses', course.id]" class="course-row group flex items-start gap-4 bg-slate-800/60 rounded-2xl border border-slate-700/80
+                          p-5 hover:border-sky-500/30 transition-all duration-300 animate-fade-in-up cursor-pointer"
                    [style.animation-delay]="(i * 0.07) + 's'">
 
                 <!-- Step number -->
@@ -183,7 +183,7 @@ const LEVEL_BAR: Record<string, number> = {
                     </span>
                   </div>
                 </div>
-              </div>
+              </a>
             }
           </div>
 

@@ -65,16 +65,16 @@
         <div class="mt-auto flex flex-col gap-3">
           <button
             (click)="subscribe(plan.id)"
-            [disabled]="isLoadingMap[plan.id]"
+            [disabled]="isLoadingMap[plan.id] || isPlanActive(plan.id)"
             class="w-full py-3.5 px-4 rounded-xl font-semibold transition-all shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             [class.bg-emerald-500]="plan.isPopular"
-            [class.hover:bg-emerald-400]="plan.isPopular"
+            [class.hover:bg-emerald-400]="plan.isPopular && !isPlanActive(plan.id)"
             [class.text-slate-900]="plan.isPopular"
             [class.bg-transparent]="!plan.isPopular"
             [class.border]="!plan.isPopular"
             [class.border-emerald-500]="!plan.isPopular"
             [class.text-emerald-500]="!plan.isPopular"
-            [class.hover:bg-emerald-500/10]="!plan.isPopular"
+            [class.hover:bg-emerald-500/10]="!plan.isPopular && !isPlanActive(plan.id)"
           >
             <span *ngIf="isLoadingMap[plan.id]">
               <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -82,7 +82,8 @@
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
               </svg>
             </span>
-            <span>{{ isLoadingMap[plan.id] ? 'Procesando...' : 'Suscríbete a ' + plan.title }}</span>
+            <span *ngIf="!isLoadingMap[plan.id]">{{ isPlanActive(plan.id) ? 'Suscripción Actual' : 'Suscríbete a ' + plan.title }}</span>
+            <span *ngIf="isLoadingMap[plan.id]">Procesando...</span>
           </button>
           
           <div *ngIf="plan.installments" class="text-xs text-center text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-2">
