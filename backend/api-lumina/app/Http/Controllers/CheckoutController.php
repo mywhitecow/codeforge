@@ -53,6 +53,12 @@ class CheckoutController extends Controller
     public function createSubscriptionSession(Request $request)
     {
         $planId = $request->input('plan_id'); // e.g., 'basic', 'expert', 'expert_duo'
+        $user = $request->user();
+
+        // Evitar que el usuario se suscriba al mismo plan si ya lo tiene activo
+        if ($user->plan_id === $planId && $user->plan_expires_at && now()->lessThan($user->plan_expires_at)) {
+            return response()->json(['error' => 'Ya estás suscrito a este plan.'], 403);
+        }
         
         // Define plans dummy data
         $plans = [
@@ -97,6 +103,47 @@ class CheckoutController extends Controller
             ]);
 
             return response()->json(['id' => $session->id, 'url' => $session->url]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verifySubscriptionSession(Request $request)
+    {
+        $sessionId = $request->input('session_id');
+        $planId = $request->input('plan_id');
+        $user = $request->user();
+
+        if (!$sessionId) {
+            return response()->json(['error' => 'No session ID provided'], 400);
+        }
+
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $session = Session::retrieve($sessionId);
+
+            // Verificamos que se pagó la sesión
+            if ($session->payment_status === 'paid') {
+                // Actualizamos el usuario
+                $interval = $planId === 'basic' ? '1 month' : '1 year';
+                $expiresAt = now()->add($interval);
+
+                $user->update([
+                    'plan_id' => $planId,
+                    'plan_expires_at' => $expiresAt
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Subscription verified successfully',
+                    'plan_id' => $user->plan_id,
+                    'plan_expires_at' => $user->plan_expires_at
+                ]);
+            }
+
+            return response()->json(['error' => 'Payment not completed'], 400);
 
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

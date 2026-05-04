@@ -42,6 +42,8 @@ export interface User {
   // ── Estudiante ──────────────────────────────────────────────────────────
   enrolledCourseIds: string[];
   subscriptionTier?: SubscriptionTier;
+  plan_id?: string;
+  plan_expires_at?: string;
 
   // ── Instructor ──────────────────────────────────────────────────────────
   ownedCourseIds?: string[];

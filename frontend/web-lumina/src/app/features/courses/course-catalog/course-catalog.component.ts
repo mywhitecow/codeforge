@@ -104,7 +104,7 @@ register();
                 @for (course of courses(); track course.id; let i = $index) {
                   <swiper-slide style="width: auto;">
                     <div class="animate-fade-in-up" [style.animation-delay]="(i * 0.05) + 's'">
-                      <app-course-card [course]="course" [isFirst]="i === 0" (showDetails)="openCourseModal($event)" />
+                      <app-course-card [course]="course" [isFirst]="i === 0" [showPrice]="false" (showDetails)="openCourseModal($event)" />
                     </div>
                   </swiper-slide>
                 }

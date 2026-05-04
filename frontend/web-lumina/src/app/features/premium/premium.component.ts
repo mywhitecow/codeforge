@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { StripeService } from '../../shared/services/stripe.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface Plan {
   id: string;
@@ -27,7 +28,7 @@ export class PremiumComponent {
   
   isLoadingMap: { [key: string]: boolean } = {};
 
-  constructor(private stripeService: StripeService) {}
+  constructor(private stripeService: StripeService, public authService: AuthService) {}
 
   plans: Plan[] = [
     {
@@ -74,6 +75,14 @@ export class PremiumComponent {
     }
   ];
 
+  isPlanActive(planId: string): boolean {
+    const user = this.authService.currentUser();
+    if (!user || user.plan_id !== planId) return false;
+    if (!user.plan_expires_at) return false;
+    
+    return new Date(user.plan_expires_at) > new Date();
+  }
+
   subscribe(planId: string) {
     this.isLoadingMap[planId] = true;
     this.stripeService.createSubscriptionSession(planId).subscribe({
@@ -83,7 +92,12 @@ export class PremiumComponent {
       error: (err) => {
         console.error('Error starting checkout session', err);
         this.isLoadingMap[planId] = false;
-        alert('Ocurrió un error al intentar iniciar el pago. Asegúrate de estar autenticado (inicia sesión).');
+        
+        if (err.status === 403 && err.error?.error) {
+           alert(err.error.error);
+        } else {
+           alert('Ocurrió un error al intentar iniciar el pago. Asegúrate de estar autenticado (inicia sesión).');
+        }
       }
     });
   }

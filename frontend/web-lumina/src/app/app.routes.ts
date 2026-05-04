@@ -92,8 +92,7 @@ export const routes: Routes = [
   },
   { path: 'jobs', redirectTo: 'codeforce-careers', pathMatch: 'full' },
   { path: 'live',      component: PlaceholderComponent },
- { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },
-  { path: 'my-courses', component: PlaceholderComponent },
+ { path: 'premium',   loadComponent: () => import('./features/premium/premium.component').then(m => m.PremiumComponent) },  { path: 'payment-success', loadComponent: () => import('./features/premium/payment-success/payment-success').then(m => m.PaymentSuccess) },  { path: 'my-courses', component: PlaceholderComponent },
   { path: 'notes',     component: PlaceholderComponent },
   { path: 'help',      component: PlaceholderComponent },
 
