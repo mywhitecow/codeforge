@@ -1,5 +1,15 @@
+// features/schools/routes.ts
 import { Routes } from '@angular/router';
-// Similar a paths, ajusta cuando tengas el componente
+
 export const SCHOOLS_ROUTES: Routes = [
-  { path: '', redirectTo: '/courses', pathMatch: 'full' } // temporal
+  {
+    path: '',
+    loadComponent: () =>
+      import('./school-list/school-list.component').then(m => m.SchoolListComponent),
+  },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./school-detail/school-detail.component').then(m => m.SchoolDetailComponent),
+  },
 ];

@@ -1,15 +1,13 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 export interface GridCourse {
-  id: number;
+  id: string;
   title: string;
   subtitle: string;
   fullDescription: string;
-  currentPrice: number;
-  originalPrice?: number;
-  discountPercent?: number;
-  currency: string;
+  thumbnailUrl: string;
   hasGreenBadge?: boolean;
   instructor?: string;
 }
@@ -17,7 +15,7 @@ export interface GridCourse {
 @Component({
   selector: 'app-course-grid',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="mb-12">
@@ -32,27 +30,37 @@ export interface GridCourse {
         @for (course of courses; track course.id) {
           <div class="relative group h-full">
             <!-- Normal Card Content -->
-            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 h-full flex flex-col justify-between transition-all duration-300 group-hover:border-slate-500 cursor-pointer">
-              
-              <div>
-                <!-- Badge and Title -->
-                <div class="flex justify-between items-start mb-2">
-                  <h3 class="text-xl font-bold text-white leading-tight uppercase">{{ course.title }}</h3>
-                  @if (course.hasGreenBadge) {
-                    <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-                  }
-                </div>
-                <!-- Subtitle -->
-                <p class="text-slate-400 text-sm mb-6 uppercase tracking-wider font-medium line-clamp-2">
-                  {{ course.subtitle }}
-                </p>
+            <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 h-full flex flex-col transition-all duration-300 group-hover:border-slate-500 cursor-pointer">
+
+              <!-- Thumbnail -->
+              <div class="relative overflow-hidden h-36">
+                <img [src]="course.thumbnailUrl"
+                     [alt]="course.title"
+                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                     loading="lazy" />
+                @if (course.hasGreenBadge) {
+                  <div class="absolute top-2 right-2 w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+                }
               </div>
 
-              <!-- Footer (reemplazo de precios) -->
-              <div class="mt-auto pt-4">
-                <span class="inline-block bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">
-                  Incluido en Premium
-                </span>
+              <div class="p-5 flex flex-col flex-grow">
+                <!-- Badge and Title -->
+                <h3 class="text-base font-bold text-white leading-tight uppercase mb-1">{{ course.title }}</h3>
+                <!-- Subtitle -->
+                <p class="text-slate-400 text-xs mb-4 uppercase tracking-wider font-medium line-clamp-2">
+                  {{ course.subtitle }}
+                </p>
+
+                <!-- Footer -->
+                <div class="mt-auto pt-3">
+                  <span class="inline-block bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded mb-3">
+                    Incluido en Premium
+                  </span>
+                  <a [routerLink]="['/courses', course.id]"
+                     class="w-full bg-slate-700 hover:bg-sky-500 text-slate-200 hover:text-white font-semibold py-2.5 rounded-lg transition-all duration-200 text-sm text-center flex items-center justify-center gap-1">
+                    Más información →
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -62,21 +70,21 @@ export interface GridCourse {
               <p class="text-slate-300 text-sm flex-grow mb-6">
                 {{ course.fullDescription }}
               </p>
-              
+
               @if (course.instructor) {
                 <p class="text-slate-400 text-xs mb-4">
                   Instructor: <span class="text-white">{{ course.instructor }}</span>
                 </p>
               }
 
-              <!-- Omitimos precio en popup -->
               <div class="mb-4">
                 <span class="text-emerald-400 text-xs font-bold">Disponible con Premium</span>
               </div>
 
-              <button class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm">
+              <a [routerLink]="['/courses', course.id]"
+                 class="w-full bg-sky-500 hover:bg-sky-400 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm text-center block">
                 Más información
-              </button>
+              </a>
             </div>
 
           </div>
@@ -88,125 +96,98 @@ export interface GridCourse {
 export class CourseGridComponent {
   courses: GridCourse[] = [
     {
-      id: 1,
-      title: "CURSOR",
-      subtitle: "PROGRAMACIÓN ASISTIDA CON IA AVANZADA",
-      fullDescription: "Domina el uso de Cursor, el editor de código potenciado por IA. Aprende a integrar agentes, autocompletado avanzado y refactorización inteligente para multiplicar tu productividad como desarrollador.",
-      currentPrice: 157.99,
-      originalPrice: 249.99,
-      discountPercent: 37,
-      currency: "BS",
+      id: 'cursor',
+      title: 'CURSOR',
+      subtitle: 'PROGRAMACIÓN ASISTIDA CON IA AVANZADA',
+      fullDescription: 'Domina el uso de Cursor, el editor de código potenciado por IA. Aprende a integrar agentes, autocompletado avanzado y refactorización inteligente para multiplicar tu productividad como desarrollador.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80',
       hasGreenBadge: true,
-      instructor: "Carlos Dev"
+      instructor: 'Carlos Dev'
     },
     {
-      id: 2,
-      title: "AFFINITY STUDIO",
-      subtitle: "DISEÑO GRÁFICO PROFESIONAL",
-      fullDescription: "Aprende a dominar Affinity Designer, Photo y Publisher. Crea ilustraciones vectoriales, edita fotografías y maqueta documentos profesionales sin suscripciones mensuales.",
-      currentPrice: 120.00,
-      originalPrice: 180.00,
-      discountPercent: 33,
-      currency: "BS",
-      instructor: "Laura Design"
+      id: 'affinity-studio',
+      title: 'AFFINITY STUDIO',
+      subtitle: 'DISEÑO GRÁFICO PROFESIONAL',
+      fullDescription: 'Aprende a dominar Affinity Designer, Photo y Publisher. Crea ilustraciones vectoriales, edita fotografías y maqueta documentos profesionales sin suscripciones mensuales.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80',
+      instructor: 'Laura Design'
     },
     {
-      id: 3,
-      title: "NEXT.JS",
-      subtitle: "DESARROLLO WEB REACT FULL-STACK",
-      fullDescription: "Aprende a construir aplicaciones web ultra rápidas y escalables con Next.js 14. Incluye Server Components, Server Actions, enrutamiento avanzado y optimización SEO.",
-      currentPrice: 210.50,
-      originalPrice: 299.99,
-      discountPercent: 30,
-      currency: "BS",
+      id: 'nextjs',
+      title: 'NEXT.JS',
+      subtitle: 'DESARROLLO WEB REACT FULL-STACK',
+      fullDescription: 'Aprende a construir aplicaciones web ultra rápidas y escalables con Next.js 14. Incluye Server Components, Server Actions, enrutamiento avanzado y optimización SEO.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80',
       hasGreenBadge: true,
-      instructor: "Fernando Tech"
+      instructor: 'Fernando Tech'
     },
     {
-      id: 4,
-      title: "FIGMA AVANZADO",
-      subtitle: "SISTEMAS DE DISEÑO Y PROTOTIPADO",
-      fullDescription: "Crea interfaces escalables usando Design Systems en Figma. Domina los auto layouts, variables, componentes interactivos y prototipado de alta fidelidad.",
-      currentPrice: 99.99,
-      originalPrice: 150.00,
-      discountPercent: 33,
-      currency: "BS"
+      id: 'figma-avanzado',
+      title: 'FIGMA AVANZADO',
+      subtitle: 'SISTEMAS DE DISEÑO Y PROTOTIPADO',
+      fullDescription: 'Crea interfaces escalables usando Design Systems en Figma. Domina los auto layouts, variables, componentes interactivos y prototipado de alta fidelidad.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80'
     },
     {
-      id: 5,
-      title: "DOCKER & KUBERNETES",
-      subtitle: "DESPLIEGUE Y ORQUESTACIÓN DE CONTENEDORES",
-      fullDescription: "Aprende a contenerizar tus aplicaciones con Docker y orquestarlas a gran escala con Kubernetes. Ideal para perfiles DevOps y Backend.",
-      currentPrice: 180.00,
-      currency: "BS",
+      id: 'docker-kubernetes',
+      title: 'DOCKER & KUBERNETES',
+      subtitle: 'DESPLIEGUE Y ORQUESTACIÓN DE CONTENEDORES',
+      fullDescription: 'Aprende a contenerizar tus aplicaciones con Docker y orquestarlas a gran escala con Kubernetes. Ideal para perfiles DevOps y Backend.',
+      thumbnailUrl: 'https://sysarmy.com/blog/assets/docker-thumbnail.png',
       hasGreenBadge: true
     },
     {
-      id: 6,
-      title: "ANGULAR 18",
-      subtitle: "DESARROLLO DE SPAS MODERNAS",
-      fullDescription: "Domina el nuevo Angular con Signals, Standalone Components, y el nuevo control flow. Construye aplicaciones reactivas empresariales desde cero.",
-      currentPrice: 145.00,
-      originalPrice: 200.00,
-      discountPercent: 27,
-      currency: "BS",
-      instructor: "Maria Coder"
+      id: 'angular-18',
+      title: 'ANGULAR 18',
+      subtitle: 'DESARROLLO DE SPAS MODERNAS',
+      fullDescription: 'Domina el nuevo Angular con Signals, Standalone Components, y el nuevo control flow. Construye aplicaciones reactivas empresariales desde cero.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=600&q=80',
+      instructor: 'Maria Coder'
     },
     {
-      id: 7,
-      title: "NODE.JS CON NESTJS",
-      subtitle: "BACKEND ESCALABLE CON TYPESCRIPT",
-      fullDescription: "Desarrolla APIs robustas usando NestJS, TypeORM, y bases de datos relacionales. Implementa autenticación, microservicios y WebSockets de forma profesional.",
-      currentPrice: 160.00,
-      currency: "BS"
+      id: 'node-nestjs',
+      title: 'NODE.JS CON NESTJS',
+      subtitle: 'BACKEND ESCALABLE CON TYPESCRIPT',
+      fullDescription: 'Desarrolla APIs robustas usando NestJS, TypeORM, y bases de datos relacionales. Implementa autenticación, microservicios y WebSockets de forma profesional.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=600&q=80'
     },
     {
-      id: 8,
-      title: "MACHINE LEARNING",
-      subtitle: "FUNDAMENTOS Y APLICACIÓN CON PYTHON",
-      fullDescription: "Iníciate en la inteligencia artificial. Crea modelos predictivos utilizando Scikit-Learn, Pandas y TensorFlow. Comprende cómo la IA está cambiando la industria.",
-      currentPrice: 250.00,
-      originalPrice: 350.00,
-      discountPercent: 28,
-      currency: "BS",
+      id: 'machine-learning',
+      title: 'MACHINE LEARNING',
+      subtitle: 'FUNDAMENTOS Y APLICACIÓN CON PYTHON',
+      fullDescription: 'Iníciate en la inteligencia artificial. Crea modelos predictivos utilizando Scikit-Learn, Pandas y TensorFlow. Comprende cómo la IA está cambiando la industria.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&q=80',
       hasGreenBadge: true
     },
     {
-      id: 9,
-      title: "TAILWINDCSS",
-      subtitle: "DISEÑO WEB RÁPIDO Y MODERNO",
-      fullDescription: "Olvídate del CSS tradicional. Aprende a crear interfaces complejas y responsivas en tiempo récord directamente en tu HTML utilizando clases utilitarias.",
-      currentPrice: 85.00,
-      originalPrice: 120.00,
-      discountPercent: 29,
-      currency: "BS"
+      id: 'tailwindcss',
+      title: 'TAILWINDCSS',
+      subtitle: 'DISEÑO WEB RÁPIDO Y MODERNO',
+      fullDescription: 'Olvídate del CSS tradicional. Aprende a crear interfaces complejas y responsivas en tiempo récord directamente en tu HTML utilizando clases utilitarias.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=600&q=80'
     },
     {
-      id: 10,
-      title: "CYBERSECURITY",
-      subtitle: "PENTESTING Y DEFENSA DE REDES",
-      fullDescription: "Conviértete en un experto en ciberseguridad. Aprende a detectar vulnerabilidades en sistemas y aplicaciones web, y descubre cómo proteger infraestructuras digitales.",
-      currentPrice: 300.00,
-      currency: "BS",
+      id: 'cybersecurity',
+      title: 'CYBERSECURITY',
+      subtitle: 'PENTESTING Y DEFENSA DE REDES',
+      fullDescription: 'Conviértete en un experto en ciberseguridad. Aprende a detectar vulnerabilidades en sistemas y aplicaciones web, y descubre cómo proteger infraestructuras digitales.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80',
       hasGreenBadge: true
     },
     {
-      id: 11,
-      title: "REACT NATIVE",
-      subtitle: "DESARROLLO DE APPS MÓVILES",
-      fullDescription: "Usa tus conocimientos de React para construir aplicaciones móviles nativas para iOS y Android con una sola base de código.",
-      currentPrice: 195.00,
-      originalPrice: 250.00,
-      discountPercent: 22,
-      currency: "BS"
+      id: 'react-native',
+      title: 'REACT NATIVE',
+      subtitle: 'DESARROLLO DE APPS MÓVILES',
+      fullDescription: 'Usa tus conocimientos de React para construir aplicaciones móviles nativas para iOS y Android con una sola base de código.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80'
     },
     {
-      id: 12,
-      title: "RUST PROGRAMMING",
-      subtitle: "SISTEMAS SEGUROS Y CONCURRENTES",
-      fullDescription: "Descubre el lenguaje que está revolucionando la programación de sistemas. Aprende sobre el ownership, borrow checker y concurrencia sin miedo.",
-      currentPrice: 175.00,
-      currency: "BS"
+      id: 'rust',
+      title: 'RUST PROGRAMMING',
+      subtitle: 'SISTEMAS SEGUROS Y CONCURRENTES',
+      fullDescription: 'Descubre el lenguaje que está revolucionando la programación de sistemas. Aprende sobre el ownership, borrow checker y concurrencia sin miedo.',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80'
     }
   ];
 }
+

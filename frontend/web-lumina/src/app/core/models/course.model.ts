@@ -2,7 +2,7 @@
 // CORREGIDO: eliminado el interface User duplicado — ver user.model.ts
 
 export interface Course {
-category: any;
+  category: any;
   id: string;
   title: string;
   shortDescription?: string;
@@ -17,6 +17,7 @@ category: any;
   tags: string[];
   schoolId?: string;
   pathId?: string;
+  isPremium?: boolean;
 }
 
 export interface CourseDetail extends Course {
@@ -33,4 +34,5 @@ export interface CourseSyllabus {
 export interface CourseSyllabusLesson {
   title: string;
   durationMinutes: number;
+  isCompleted?: boolean;
 }

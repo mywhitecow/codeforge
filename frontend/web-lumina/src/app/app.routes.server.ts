@@ -27,6 +27,7 @@ export const serverRoutes: ServerRoute[] = [
 
   // Rutas dinámicas públicas → SSR on-demand
   { path: 'paths/:id',      renderMode: RenderMode.Server },
+  { path: 'schools/:id',    renderMode: RenderMode.Server },
 
   // Todo lo demás → prerender en build time
   {
