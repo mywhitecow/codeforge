@@ -81,12 +81,8 @@ export class HeaderComponent {
     this.isProfileMenuOpen.update(v => !v);
   }
 
+
   closeProfileMenu(): void {
     this.isProfileMenuOpen.set(false);
   }
-
-  onSearch(term: string): void {
-    console.log('Buscando:', term);
-    // Aquí puedes implementar navegación a resultados de búsqueda
-  }
-}
+}

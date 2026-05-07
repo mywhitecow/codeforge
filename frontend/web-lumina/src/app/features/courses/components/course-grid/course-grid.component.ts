@@ -216,14 +216,14 @@ export class CourseGridComponent {
   hasAccess(courseId: string): boolean {
     const user = this.auth.currentUser();
     if (!user) return false;
-    
+
     if (user.role === 'admin' || user.role === 'instructor') return true;
-    
+
     const hasPremium = user.plan_id && (!user.plan_expires_at || new Date(user.plan_expires_at) > new Date());
     if (hasPremium) return true;
-    
+
     if (user.enrolledCourseIds && user.enrolledCourseIds.includes(courseId)) return true;
-    
+
     return false;
   }
 }

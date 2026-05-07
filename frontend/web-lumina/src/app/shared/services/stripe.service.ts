@@ -15,8 +15,16 @@ export class StripeService {
     return this.http.post<{ id: string, url: string }>(`${this.apiUrl}/checkout/session/${courseId}`, {});
   }
 
-  createSubscriptionSession(planId: string): Observable<{ id: string, url: string }> {
-    return this.http.post<{ id: string, url: string }>(`${this.apiUrl}/checkout/subscription`, { plan_id: planId });
+  createSubscriptionSession(planId: string, secondEmail?: string): Observable<{ id: string, url: string }> {
+    const body: any = { plan_id: planId };
+    if (secondEmail) {
+      body.second_email = secondEmail;
+    }
+    return this.http.post<{ id: string, url: string }>(`${this.apiUrl}/checkout/subscription`, body);
+  }
+
+  verifyEmail(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/checkout/verify-email`, { email });
   }
 
   verifySubscriptionSession(sessionId: string, planId: string): Observable<any> {

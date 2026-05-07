@@ -52,8 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/password', [AuthController::class, 'updatePassword']);
     });
     
-    // Rutas del CRUD de cursos (LUM-7)
-    Route::apiResource('courses', CourseController::class);
+    // Rutas del CRUD de cursos (LUM-7) (Solo creación/edición/borrado requiere auth)
+    Route::apiResource('courses', CourseController::class)->except(['index', 'show']);
     
     // Dashboard Stats Admin
     Route::get('/admin/dashboard/stats', [\App\Http\Controllers\AdminDashboardController::class, 'stats']);
@@ -74,5 +74,10 @@ Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderC
 use App\Http\Controllers\CheckoutController;
 Route::middleware('auth:sanctum')->post('/checkout/session/{course_id}', [CheckoutController::class, 'createSession']);
 Route::middleware('auth:sanctum')->post('/checkout/subscription', [CheckoutController::class, 'createSubscriptionSession']);
+Route::middleware('auth:sanctum')->post('/checkout/verify-email', [CheckoutController::class, 'verifyEmail']);
 
 Route::middleware('auth:sanctum')->post('/checkout/verify-subscription', [App\Http\Controllers\CheckoutController::class, 'verifySubscriptionSession']);
+
+// Rutas públicas de cursos
+Route::get('/courses', [CourseController::class, 'index']);
+Route::get('/courses/{course}', [CourseController::class, 'show']);

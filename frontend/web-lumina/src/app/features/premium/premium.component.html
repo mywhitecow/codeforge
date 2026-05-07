@@ -61,6 +61,18 @@
           </li>
         </ul>
 
+        <!-- Input de segundo correo para Duo Expert -->
+        <div *ngIf="plan.id === 'expert_duo'" class="mb-4 mt-2">
+          <label class="block text-sm font-medium text-slate-300 mb-1">Correo de tu compañero</label>
+          <input 
+            type="email" 
+            [(ngModel)]="secondEmail" 
+            placeholder="estudiante@ejemplo.com"
+            class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+          >
+          <p *ngIf="errorMessage && plan.id === 'expert_duo'" class="text-red-400 text-xs mt-1">{{ errorMessage }}</p>
+        </div>
+
         <!-- Botón CTA -->
         <div class="mt-auto flex flex-col gap-3">
           <button

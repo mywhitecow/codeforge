@@ -104,11 +104,28 @@ DB_USERNAME=postgres
 DB_PASSWORD=su_contraseña_aqui
 ```
 
-Finalmente, construya las tablas en la base de datos y levante el servidor:
+Finalmente, construya las tablas en la base de datos, genere los datos de prueba (cursos, usuarios, etc.) y levante el servidor:
 
 ```bash
-php artisan migrate
+php artisan migrate --seed
 php artisan serve
 ```
 
 El backend estará corriendo en **http://localhost:8000**.
+
+> **Nota de Configuración Adicional (.env):**
+> Para probar funcionalidades específicas como pagos y el inicio de sesión con redes sociales, deberá configurar las siguientes variables en su archivo `.env` del backend:
+> ```env
+> # Integración de Pagos
+> STRIPE_KEY=su_clave_publica_aqui
+> STRIPE_SECRET=su_clave_secreta_aqui
+> 
+> # Autenticación Social (OAuth)
+> GITHUB_CLIENT_ID=su_client_id_aqui
+> GITHUB_CLIENT_SECRET=su_client_secret_aqui
+> GITHUB_REDIRECT_URI=http://localhost:8000/api/auth/github/callback
+> 
+> GOOGLE_CLIENT_ID=su_client_id_aqui
+> GOOGLE_CLIENT_SECRET=su_client_secret_aqui
+> GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
+> ```
