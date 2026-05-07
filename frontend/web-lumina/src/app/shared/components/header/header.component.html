@@ -43,7 +43,7 @@
       </nav>
 
       <div class="hidden md:flex flex-1 max-w-sm lg:max-w-md mx-2 lg:mx-4">
-        <app-search-bar (search)="onSearch($event)" class="w-full"></app-search-bar>
+        <app-search-bar class="w-full"></app-search-bar>
       </div>
 
       <div class="flex items-center gap-1 md:gap-2 shrink-0">
@@ -101,7 +101,7 @@
     @if (isMenuOpen()) {
     <div class="lg:hidden border-t border-white/10 py-3 animate-fade-in-down">
       <div class="px-2 mb-3">
-        <app-search-bar (search)="onSearch($event); closeMenu()" class="w-full"></app-search-bar>
+        <app-search-bar class="w-full"></app-search-bar>
       </div>
 
       <nav class="flex flex-col gap-0.5">
