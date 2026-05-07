@@ -1,4 +1,4 @@
-// app.component.ts
+// src/app/app.component.ts
 import { Component, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
@@ -6,6 +6,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { TopBannerComponent } from './shared/components/top-banner/top-banner.component';
 import { LoadingBarComponent } from './shared/components/loading-bar/loading-bar.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { FooterComponent } from './shared/components/footer/footer.component'; // ← NUEVO
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     HeaderComponent,
     TopBannerComponent,
     LoadingBarComponent,
-    ToastComponent
+    ToastComponent,
+    FooterComponent // ← NUEVO
   ],
   template: `
     <app-loading-bar />
@@ -25,6 +27,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
       <main class="main-content">
         <router-outlet />
       </main>
+      <app-footer /> <!-- ← NUEVO -->
     </div>
     <app-toast />
   `
