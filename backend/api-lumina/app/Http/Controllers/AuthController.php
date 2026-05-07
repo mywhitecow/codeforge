@@ -63,6 +63,9 @@ class AuthController extends Controller
             // Esto es crucial para Sanctum SPA auth basado en cookies
             \Illuminate\Support\Facades\Auth::login($user);
 
+            // Revocamos cualquier sesión (token) anterior en otros dispositivos
+            $user->tokens()->delete();
+
             // Generamos el token de sesión
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -113,6 +116,9 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
+
+        // Revocamos cualquier sesión (token) anterior en otros dispositivos
+        $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

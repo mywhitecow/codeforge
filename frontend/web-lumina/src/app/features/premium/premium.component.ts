@@ -1,6 +1,7 @@
 
 import { Component } from '@angular/core';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { StripeService } from '../../shared/services/stripe.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -18,7 +19,7 @@ interface Plan {
 @Component({
   selector: 'app-premium',
   standalone: true,
-  imports: [CommonModule, NgFor, NgIf],
+  imports: [CommonModule, NgFor, NgIf, FormsModule],
   templateUrl:  './premium.component.html',
   styleUrl: './premium.component.scss'
 })
@@ -27,6 +28,8 @@ export class PremiumComponent {
   activeTab: 'persons' | 'companies' = 'persons';
   
   isLoadingMap: { [key: string]: boolean } = {};
+  secondEmail: string = '';
+  errorMessage: string | null = null;
 
   constructor(private stripeService: StripeService, public authService: AuthService) {}
 
@@ -84,8 +87,43 @@ export class PremiumComponent {
   }
 
   subscribe(planId: string) {
-    this.isLoadingMap[planId] = true;
-    this.stripeService.createSubscriptionSession(planId).subscribe({
+    this.errorMessage = null;
+    
+    if (planId === 'expert_duo') {
+      if (!this.secondEmail || this.secondEmail.trim() === '') {
+        this.errorMessage = 'Debes ingresar el correo de tu compañero.';
+        return;
+      }
+      
+      const currentUser = this.authService.currentUser();
+      if (currentUser && currentUser.email === this.secondEmail.trim()) {
+        this.errorMessage = 'No puedes usar tu propio correo como compañero.';
+        return;
+      }
+      
+      this.isLoadingMap[planId] = true;
+      this.stripeService.verifyEmail(this.secondEmail.trim()).subscribe({
+        next: () => {
+          // El correo existe, continuar con Stripe
+          this.proceedToCheckout(planId, this.secondEmail.trim());
+        },
+        error: (err) => {
+          this.isLoadingMap[planId] = false;
+          if (err.status === 404) {
+            this.errorMessage = 'El correo ingresado no está registrado en la plataforma.';
+          } else {
+            this.errorMessage = 'Error al verificar el correo. Intenta de nuevo.';
+          }
+        }
+      });
+    } else {
+      this.isLoadingMap[planId] = true;
+      this.proceedToCheckout(planId);
+    }
+  }
+
+  private proceedToCheckout(planId: string, secondEmail?: string) {
+    this.stripeService.createSubscriptionSession(planId, secondEmail).subscribe({
       next: (res) => {
         window.location.href = res.url;
       },
@@ -95,6 +133,8 @@ export class PremiumComponent {
         
         if (err.status === 403 && err.error?.error) {
            alert(err.error.error);
+        } else if (err.status === 400 && err.error?.error) {
+           this.errorMessage = err.error.error;
         } else {
            alert('Ocurrió un error al intentar iniciar el pago. Asegúrate de estar autenticado (inicia sesión).');
         }
