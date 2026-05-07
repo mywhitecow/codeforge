@@ -217,7 +217,7 @@ const MOCK_COURSES: Course[] = [
     shortDescription: 'Despliegue y orquestación de contenedores.',
     description: 'Aprende a contenerizar tus aplicaciones con Docker y orquestarlas a gran escala con Kubernetes. Ideal para perfiles DevOps y Backend.',
     instructor: 'Javier Ruiz',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1667372393913-5d5f89e62394?w=600&q=80',
+    thumbnailUrl: 'https://sysarmy.com/blog/assets/docker-thumbnail.png',
     price: 0,
     rating: 4.9,
     totalReviews: 760,
@@ -942,6 +942,11 @@ const MOCK_COURSE_DETAILS: CourseDetail[] = [
 @Injectable({ providedIn: 'root' })
 export class CourseService {
   private readonly api = inject(ApiService);
+
+  /** Devuelve todos los cursos mock de forma síncrona. Usado por el buscador predictivo. */
+  getAllCourses(): Course[] {
+    return MOCK_COURSES;
+  }
 
   getAll(filters?: { level?: string; search?: string }): Observable<Course[]> {
     return this.api.get<Course[]>('courses', filters as Record<string, string>).pipe(
