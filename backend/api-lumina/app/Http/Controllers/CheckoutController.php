@@ -26,43 +26,7 @@ class CheckoutController extends Controller
 
     public function createSession(Request $request, $id)
     {
-        $course = Course::findOrFail($id);
-        
-        // Configurar la API key de Stripe
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        // URL del frontend a donde redirigir
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:4200');
-
-        try {
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => $course->title,
-                            'description' => $course->description,
-                        ],
-                        'unit_amount' => intval($course->price * 100), // En centavos
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => $frontendUrl . '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => $frontendUrl . '/payment-cancel',
-                'customer_email' => $request->user()->email,
-                'metadata' => [
-                    'course_id' => $course->id,
-                    'user_id' => $request->user()->id,
-                ],
-            ]);
-
-            return response()->json(['id' => $session->id, 'url' => $session->url]);
-
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json(['error' => 'La compra individual de cursos ha sido desactivada. Por favor, suscríbete a un plan Premium para acceder a todo el contenido.'], 403);
     }
 
     public function createSubscriptionSession(Request $request)

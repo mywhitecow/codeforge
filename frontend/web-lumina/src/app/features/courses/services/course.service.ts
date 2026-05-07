@@ -1,5 +1,5 @@
 // features/courses/services/course.service.ts
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { Course, CourseDetail } from '../../../core/models/course.model';
 import { Observable, of, throwError } from 'rxjs';
@@ -13,7 +13,8 @@ const MOCK_COURSES: Course[] = [
     description: 'En este curso aprenderás a estructurar aplicaciones Angular escalables, implementar patrones de diseño modernos y dominar el uso de RxJS para el manejo de flujos asíncronos complejos. Incluye proyectos reales y best practices de la industria.',
     instructor: 'Ana García',
     thumbnailUrl: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=600&q=80',
-    price: 49.99,
+    isPremium: true,
+    price: 0,
     rating: 4.8,
     totalReviews: 1240,
     durationHours: 12,
@@ -21,7 +22,6 @@ const MOCK_COURSES: Course[] = [
     tags: ['Angular', 'RxJS', 'Frontend'],
     category: undefined,
     schoolId: 'school-1',
-    isPremium: false,
   },
   {
     id: 'react-hooks',
@@ -942,10 +942,11 @@ const MOCK_COURSE_DETAILS: CourseDetail[] = [
 @Injectable({ providedIn: 'root' })
 export class CourseService {
   private readonly api = inject(ApiService);
+  private readonly _realCourses = signal<Course[]>([]);
 
-  /** Devuelve todos los cursos mock de forma síncrona. Usado por el buscador predictivo. */
+  /** Devuelve los cursos reales cargados desde la API. Usado por el buscador. */
   getAllCourses(): Course[] {
-    return MOCK_COURSES;
+    return this._realCourses();
   }
 
   getAll(filters?: { level?: string; search?: string }): Observable<Course[]> {
@@ -958,6 +959,8 @@ export class CourseService {
           }
           return result;
         }
+        // Sincronizamos la caché de cursos reales para el buscador
+        this._realCourses.set(data);
         return data;
       }),
       catchError(() => {
@@ -991,6 +994,44 @@ export class CourseService {
 
     // Si no está en mock, llamar a la API con fallback
     return this.api.get<CourseDetail>(`courses/${id}`).pipe(
+      map(course => {
+        // Inyectar datos estructurados (syllabus, prerequisites) si no vienen de la API
+        if (!course.syllabus || course.syllabus.length === 0) {
+          course.prerequisites = [
+            'Conocimiento básico de informática',
+            'Ganas de aprender y mejorar tus habilidades',
+            'Un computador con conexión a internet'
+          ];
+          course.enrolledCount = course.enrolledCount || Math.floor(Math.random() * 5000) + 500;
+          course.syllabus = [
+            {
+              sectionTitle: 'Introducción y Conceptos Básicos',
+              lessons: [
+                { title: 'Bienvenida al curso y objetivos', durationMinutes: 10, isCompleted: true },
+                { title: 'Configuración del entorno de trabajo', durationMinutes: 15, isCompleted: false },
+                { title: 'Fundamentos esenciales', durationMinutes: 25, isCompleted: false }
+              ]
+            },
+            {
+              sectionTitle: 'Desarrollo Práctico Avanzado',
+              lessons: [
+                { title: 'Primeros pasos en la práctica', durationMinutes: 20, isCompleted: false },
+                { title: 'Técnicas y patrones comunes de la industria', durationMinutes: 35, isCompleted: false },
+                { title: 'Resolución de problemas complejos', durationMinutes: 25, isCompleted: false }
+              ]
+            },
+            {
+              sectionTitle: 'Proyecto Final y Certificación',
+              lessons: [
+                { title: 'Planificación del proyecto integrador', durationMinutes: 15, isCompleted: false },
+                { title: 'Implementación paso a paso del proyecto', durationMinutes: 45, isCompleted: false },
+                { title: 'Despliegue, mejores prácticas y conclusiones', durationMinutes: 20, isCompleted: false }
+              ]
+            }
+          ];
+        }
+        return course;
+      }),
       catchError(() => throwError(() => new Error(`Curso con id "${id}" no encontrado`)))
     );
   }
