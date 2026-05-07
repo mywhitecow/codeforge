@@ -131,6 +131,13 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
 export class SearchBarComponent {
   private readonly router = inject(Router);
   private readonly courseService = inject(CourseService);
+  
+  constructor() {
+    // Aseguramos que los cursos estén cargados para el buscador
+    if (this.courseService.getAllCourses().length === 0) {
+      this.courseService.getAll().subscribe();
+    }
+  }
 
   searchTerm = signal('');
   private isOpen = signal(false);

@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../services/course.service';
-import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { CourseDetail, CourseSyllabus } from '../../../core/models/course.model';
 
 @Component({
@@ -282,44 +282,31 @@ import { CourseDetail, CourseSyllabus } from '../../../core/models/course.model'
                      class="w-full h-40 object-cover rounded-lg mb-4" />
               }
 
-              <!-- Precio -->
-              <div class="mb-1">
-                @if (c.isPremium) {
-                  <div class="text-lg font-bold text-amber-400">Incluido en Premium</div>
-                  <p class="text-xs text-slate-400 mt-0.5">Suscríbete y accede a todos los cursos</p>
-                } @else {
-                  <div class="text-3xl font-bold text-slate-100">
-                    @if (c.price === 0) {
-                      <span class="text-green-400">Gratis</span>
-                    } @else {
-                      Cómpralo por <span>$ </span>{{ c.price.toFixed(2) }} USD
-                    }
-                  </div>
-                }
+              <!-- Precio (Removido, todo es por suscripción) -->
+              <div class="mb-4">
+                <div class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                  Incluido en Premium
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Acceso ilimitado a este y todos los cursos con tu suscripción.</p>
               </div>
 
-              <!-- CTA -->
-              @if (c.isPremium) {
+              <!-- CTA Acceso -->
+              @if (hasAccess(c.id)) {
+                <button
+                   class="btn bg-emerald-500 hover:bg-emerald-400 text-slate-900 w-full justify-center py-3.5 mt-2 font-bold shadow-lg shadow-emerald-500/20">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                  </svg>
+                  INICIAR CURSO
+                </button>
+              } @else {
                 <a routerLink="/premium"
-                   class="btn btn-primary w-full justify-center py-3 mt-4 text-center block">
+                   class="btn btn-primary w-full justify-center py-3.5 mt-2 text-center block font-bold">
                   ⭐ Ver planes Premium
                 </a>
-              } @else {
-                <button
-                  (click)="addToCart(c)"
-                  id="add-to-cart-btn"
-                  class="btn btn-primary w-full justify-center py-3 mt-4"
-                  [class.opacity-60]="inCart()"
-                  [disabled]="inCart()">
-                  {{ inCart() ? '✓ En el carrito' : 'Agregar al carrito' }}
-                </button>
-                @if (inCart()) {
-                  <a routerLink="/cart"
-                     class="btn btn-outline !text-sky-600 !border-sky-500 w-full
-                            justify-center py-2.5 mt-2 text-sm text-center block">
-                    Ver carrito →
-                  </a>
-                }
               }
 
               <!-- Garantía -->
@@ -375,13 +362,12 @@ import { CourseDetail, CourseSyllabus } from '../../../core/models/course.model'
 export class CourseDetailComponent implements OnInit {
   private readonly route         = inject(ActivatedRoute);
   private readonly courseService = inject(CourseService);
-  private readonly cartService   = inject(CartService);
+  private readonly auth          = inject(AuthService);
   private readonly router        = inject(Router);
 
   course  = signal<CourseDetail | null>(null);
   loading = signal(true);
   error   = signal(false);
-  inCart  = signal(false);
 
   // Buscador interno del syllabus
   searchQuery = '';
@@ -430,9 +416,6 @@ export class CourseDetailComponent implements OnInit {
       next: (course) => {
         this.course.set(course);
         this.loading.set(false);
-        this.inCart.set(
-          !!this.cartService.items().find(i => i.courseId === course.id)
-        );
       },
       error: () => {
         this.error.set(true);
@@ -472,14 +455,20 @@ export class CourseDetailComponent implements OnInit {
     return this.formatDuration(total);
   }
 
-  addToCart(course: CourseDetail): void {
-    this.cartService.addItem({
-      courseId:     course.id,
-      title:        course.title,
-      price:        course.price,
-      thumbnailUrl: course.thumbnailUrl,
-      addedAt:      new Date().toISOString(),
-    });
-    this.inCart.set(true);
+  hasAccess(courseId: string): boolean {
+    const user = this.auth.currentUser();
+    if (!user) return false;
+
+    // Admins e instructores siempre entran
+    if (user.role === 'admin' || user.role === 'instructor') return true;
+
+    // Verificar suscripción activa
+    const hasPremium = !!(user.plan_id && (!user.plan_expires_at || new Date(user.plan_expires_at) > new Date()));
+    if (hasPremium) return true;
+
+    // O si está inscrito manualmente
+    if (user.enrolledCourseIds && user.enrolledCourseIds.includes(courseId)) return true;
+
+    return false;
   }
 }
