@@ -13,4 +13,16 @@ export const LEARNING_ROUTES: Routes = [
     component: LearnCourseComponent,
     canActivate: [authGuard],
   },
+  {
+    path: 'exam/:courseId',
+    loadComponent: () =>
+      import('./exam/exam.component').then(m => m.ExamComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'exam-results',
+    loadComponent: () =>
+      import('./exam-results/exam-results.component').then(m => m.ExamResultsComponent),
+    canActivate: [authGuard],
+  },
 ];

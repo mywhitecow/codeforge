@@ -1,0 +1,237 @@
+// exam.component.scss
+@use 'sass:color';
+
+$bg-page:    #0F172A;
+$bg-card:    #1E293B;
+$accent:     #38BDF8;
+$text:       #F1F5F9;
+$text-muted: #94A3B8;
+$radius-lg:  12px;
+$radius-btn: 8px;
+
+.exam-wrapper {
+  min-height: 100vh;
+  background: $bg-page;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  padding-bottom: 3rem;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────
+.exam-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__icon {
+    font-size: 1.4rem;
+  }
+
+  &__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text;
+  }
+
+  &__counter {
+    font-size: 0.875rem;
+    color: $text-muted;
+    background: rgba(56, 189, 248, 0.08);
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+}
+
+// ─── Progress bar ──────────────────────────────────────────────────────────
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(56, 189, 248, 0.15);
+
+  &__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38BDF8, #7DD3FC);
+    transition: width 0.4s ease;
+  }
+}
+
+// ─── Card ─────────────────────────────────────────────────────────────────
+.exam-card {
+  width: 100%;
+  max-width: 720px;
+  margin: 2.5rem auto 0;
+  padding: 2.5rem;
+  background: $bg-card;
+  border-radius: $radius-lg;
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.35s ease;
+
+  &--empty {
+    text-align: center;
+    color: $text-muted;
+    font-size: 1rem;
+  }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─── Question ─────────────────────────────────────────────────────────────
+.question-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $accent;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.question-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.55;
+  margin-bottom: 2rem;
+}
+
+// ─── Options ──────────────────────────────────────────────────────────────
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: $radius-lg;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(56, 189, 248, 0.45);
+    background: rgba(56, 189, 248, 0.07);
+    transform: translateX(4px);
+  }
+
+  &--selected {
+    border-color: $accent;
+    background: rgba(56, 189, 248, 0.12);
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+  }
+}
+
+.option-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid $text-muted;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+
+  .option-item--selected & {
+    border-color: $accent;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $accent;
+    animation: popIn 0.2s ease;
+  }
+}
+
+@keyframes popIn {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+.option-text {
+  font-size: 0.95rem;
+  color: $text;
+  line-height: 1.5;
+}
+
+// ─── Navigation ────────────────────────────────────────────────────────────
+.exam-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+// ─── Buttons ───────────────────────────────────────────────────────────────
+.btn {
+  padding: 0.75rem 1.75rem;
+  border-radius: $radius-btn;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  &-primary {
+    background: $accent;
+    color: #0F172A;
+
+    &:hover:not(:disabled) {
+      background: #7DD3FC;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.35);
+    }
+  }
+
+  &-ghost {
+    background: transparent;
+    color: $text-muted;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+
+    &:hover:not(:disabled) {
+      color: $text;
+      border-color: rgba(148, 163, 184, 0.5);
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// ─── Responsive ────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .exam-card { margin: 1.5rem 1rem 0; padding: 1.75rem 1.25rem; }
+  .question-text { font-size: 1.1rem; }
+  .exam-nav { flex-direction: column-reverse; }
+  .btn { width: 100%; text-align: center; }
+}

@@ -1,0 +1,75 @@
+<div class="exam-wrapper">
+
+  <!-- Header -->
+  <header class="exam-header">
+    <div class="exam-header__brand">
+      <span class="exam-header__icon">📝</span>
+      <span class="exam-header__title">Examen Final</span>
+    </div>
+    <div class="exam-header__counter">
+      Pregunta {{ currentIndex() + 1 }} de {{ questions().length }}
+    </div>
+  </header>
+
+  <!-- Progress bar -->
+  <div class="progress-bar">
+    <div class="progress-bar__fill" [style.width.%]="progressPercent()"></div>
+  </div>
+
+  <!-- Question card -->
+  @if (currentQuestion(); as q) {
+    <div class="exam-card">
+      <p class="question-label">Pregunta {{ currentIndex() + 1 }}</p>
+      <h2 class="question-text">{{ q.question }}</h2>
+
+      <ul class="options-list">
+        @for (opt of q.options; track $index) {
+          <li
+            class="option-item"
+            [class.option-item--selected]="selectedOption() === $index"
+            (click)="selectOption($index)"
+          >
+            <span class="option-radio">
+              @if (selectedOption() === $index) {
+                <span class="option-radio__dot"></span>
+              }
+            </span>
+            <span class="option-text">{{ opt }}</span>
+          </li>
+        }
+      </ul>
+
+      <!-- Navigation -->
+      <div class="exam-nav">
+        <button
+          class="btn btn-ghost"
+          [disabled]="currentIndex() === 0"
+          (click)="previous()"
+        >
+          ← Anterior
+        </button>
+
+        <button
+          class="btn btn-primary"
+          [disabled]="selectedOption() === null"
+          (click)="next()"
+        >
+          @if (isLastQuestion()) {
+            Finalizar examen ✓
+          } @else {
+            Siguiente →
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!questions().length) {
+    <div class="exam-card exam-card--empty">
+      <p>No hay preguntas disponibles para este curso.</p>
+      <button class="btn btn-ghost" (click)="finish()">Volver</button>
+    </div>
+  }
+
+</div>

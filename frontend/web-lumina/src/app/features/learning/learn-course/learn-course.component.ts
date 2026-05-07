@@ -4,6 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LearningService, CourseStructure, Module } from '../services/learning.service';
 import { ProgressService } from '../../../core/services/progress.service';
 import { CourseProgress } from '../../../core/models/course-progress.model';
+import { CertificateService } from '../services/certificate.service';
+import { CourseService } from '../../courses/services/course.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { LessonSidebarComponent as LessonSidebarComponent } from "../component/lesson-sidebar/lesson-sidebar.component";
@@ -49,6 +52,21 @@ import { CommonModule } from '@angular/common';
           <app-course-tabs [lesson]="currentLesson()" />
         </div>
 
+        <!-- Examen final (aparece cuando el curso está completo al 100%) -->
+        @if (progressPercent() >= 100) {
+          <section class="flex flex-col items-center py-8 px-6 bg-slate-800/60 mx-4 mb-4 rounded-2xl border border-sky-400/20">
+            <div class="text-3xl mb-2">📝</div>
+            <h3 class="text-lg font-bold text-white mb-1">¡Lecciones completadas!</h3>
+            <p class="text-slate-400 text-sm mb-4 text-center">Ya puedes realizar el examen final para obtener tu certificado.</p>
+            <button
+              (click)="startExam()"
+              class="bg-sky-400 hover:bg-sky-300 text-slate-900 font-bold px-6 py-3 rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-sky-400/30"
+            >
+              Realizar examen final →
+            </button>
+          </section>
+        }
+
         <!-- Certificado (aparece cuando curso completado) -->
         @if (showCertificate()) {
           <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in-down">
@@ -56,7 +74,7 @@ import { CommonModule } from '@angular/common';
               <div class="text-6xl animate-bounce">🎉</div>
               <h2 class="text-2xl font-bold mt-4">¡Felicidades!</h2>
               <p class="text-slate-300 mt-2">Has completado el curso "{{ courseTitle() }}"</p>
-              <button (click)="downloadCertificate()" class="btn btn-primary mt-6">Descargar Certificado</button>
+              <button (click)="startExam()" class="btn btn-primary mt-6">Realizar examen final</button>
               <button (click)="closeCertificate()" class="btn btn-ghost mt-2">Cerrar</button>
             </div>
           </div>
@@ -74,6 +92,9 @@ export class LearnCourseComponent implements OnInit {
   private learningService = inject(LearningService);
   private progressService = inject(ProgressService);
   private sanitizer = inject(DomSanitizer);
+  private certificateService = inject(CertificateService);
+  private courseService = inject(CourseService);
+  private authService = inject(AuthService);
 
   courseId!: string;
   courseStructure = signal<CourseStructure | null>(null);
@@ -156,9 +177,25 @@ export class LearnCourseComponent implements OnInit {
     }
   }
 
+  startExam(): void {
+    this.router.navigate(['/learning/exam', this.courseId]);
+  }
+
   downloadCertificate(): void {
-    // Generar PDF simple (usando html2canvas + jspdf o backend)
-    alert('Descargando certificado... (implementar generación PDF)');
+    this.courseService.getById(this.courseId).subscribe({
+      next: (course) => {
+        const user = this.authService.currentUser();
+        const studentName = user?.name ?? 'Estudiante';
+        const instructorName = course?.instructor ?? 'CodeForge Academy';
+        const courseName = course?.title ?? this.courseId;
+        const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        this.certificateService.generatePDF(courseName, studentName, instructorName, 100, date);
+      },
+      error: () => {
+        const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        this.certificateService.generatePDF(this.courseId, 'Estudiante', 'CodeForge Academy', 100, date);
+      }
+    });
   }
 
   closeCertificate(): void {

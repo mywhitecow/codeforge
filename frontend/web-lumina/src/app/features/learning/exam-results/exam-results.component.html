@@ -1,0 +1,81 @@
+<div class="results-wrapper">
+
+  <!-- Score circle -->
+  <div class="results-hero">
+    <div class="score-circle" [class.score-circle--passed]="passed()" [class.score-circle--failed]="!passed()">
+      <span class="score-circle__value">{{ score() }}</span>
+      <span class="score-circle__label">/100</span>
+    </div>
+
+    <div class="results-badge" [class.results-badge--passed]="passed()" [class.results-badge--failed]="!passed()">
+      @if (passed()) {
+        ✅ ¡Aprobaste!
+      } @else {
+        ❌ No aprobaste
+      }
+    </div>
+
+    <h1 class="results-title">
+      @if (passed()) {
+        ¡Felicitaciones por completar el examen!
+      } @else {
+        No te rindas, ¡puedes intentarlo de nuevo!
+      }
+    </h1>
+
+    <p class="results-subtitle">
+      @if (passed()) {
+        Has demostrado tu dominio del curso con una calificación de <strong>{{ score() }}/100</strong>. Ya puedes descargar tu certificado.
+      } @else {
+        Obtuviste <strong>{{ score() }}/100</strong>. Se requiere un mínimo de 51 puntos para aprobar. ¡Repasa el material y vuelve a intentarlo!
+      }
+    </p>
+  </div>
+
+  <!-- Actions -->
+  <div class="results-actions">
+    @if (passed()) {
+      <button
+        class="btn btn-primary btn-lg"
+        [disabled]="downloading()"
+        (click)="downloadCertificate()"
+      >
+        @if (downloading()) {
+          <span class="spinner"></span> Generando PDF...
+        } @else {
+          ⬇ Descargar Certificado
+        }
+      </button>
+    } @else {
+      <button class="btn btn-primary" (click)="retakeExam()">
+        🔄 Repetir examen
+      </button>
+    }
+
+    <button class="btn btn-ghost" (click)="goBack()">
+      ← Volver al curso
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="results-card">
+    <h3 class="results-card__title">Resumen de tu desempeño</h3>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-item__value" [class.stat-item__value--accent]="passed()">{{ score() }}%</span>
+        <span class="stat-item__label">Calificación</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-item__value">51%</span>
+        <span class="stat-item__label">Mínimo para aprobar</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-item__value" [class.stat-item__value--accent]="passed()">
+          @if (passed()) { APROBADO } @else { REPROBADO }
+        </span>
+        <span class="stat-item__label">Estado</span>
+      </div>
+    </div>
+  </div>
+
+</div>
